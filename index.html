@@ -298,6 +298,28 @@
       .container {
         padding: 15px;
       }
+
+      /* Mobile Sizing for Tables to Prevent Squeezing */
+      table {
+        table-layout: auto !important;
+      }
+
+      th, td {
+        padding: 6px 4px !important;
+        font-size: 10px !important;
+      }
+
+      thead th {
+        font-size: 10px !important;
+      }
+
+      .class-view-table th:nth-child(1) { width: 50px !important; } /* Hari */
+      .class-view-table th:nth-child(2) { width: 30px !important; } /* Jam Ke- */
+      .class-view-table th:nth-child(3) { width: 75px !important; } /* Waktu */
+      .class-view-table th:nth-child(4) { width: auto !important; } /* Mata Pelajaran */
+      .class-view-table th:nth-child(5) { width: auto !important; } /* Guru */
+
+      .piket-table th:nth-child(1) { width: 80px !important; } /* Petugas Piket */
       
       .header h1 {
         font-size: 16px;
