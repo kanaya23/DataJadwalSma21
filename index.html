@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jadwal Interaktif - SMAN 21 Bekasi</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg-color: #f1f5f9;
+      --container-bg: #ffffff;
+      --primary-color: #1e3a8a;
+      --primary-hover: #172554;
+      --header-bg: #1e3a8a;
+      --header-text: #ffffff;
+      --border-color: #94a3b8;
+      --hover-bg: #f1f5f9;
+      --break-bg: #fef08a;
+      --break-text: #854d0e;
+      --text-color: #0f172a;
+      --text-muted: #475569;
+      --control-bg: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #94a3b8;
+      --shadow: none;
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      --transition-speed: 0.1s;
+    }
+
+    body.dark-theme {
+      --bg-color: #0f172a;
+      --container-bg: #1e293b;
+      --primary-color: #38bdf8;
+      --primary-hover: #7dd3fc;
+      --header-bg: #1e3a8a;
+      --header-text: #f8fafc;
+      --border-color: #475569;
+      --hover-bg: #334155;
+      --break-bg: #3f3f2e;
+      --break-text: #eab308;
+      --text-color: #f1f5f9;
+      --text-muted: #94a3b8;
+      --control-bg: #1e293b;
+      --card-bg: #1e293b;
+      --card-border: #475569;
+      --shadow: none;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      line-height: 1.5;
+      transition: background-color var(--transition-speed), color var(--transition-speed);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: auto;
+      background-color: var(--container-bg);
+      padding: 25px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      position: relative;
+      transition: background-color var(--transition-speed), border-color var(--transition-speed);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+      border-bottom: 4px double var(--border-color);
+      padding-bottom: 15px;
+      position: relative;
+    }
+
+    .header h1 {
+      margin: 0 0 5px 0;
+      color: var(--primary-color);
+      font-size: 24px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: color var(--transition-speed);
+    }
+
+    .header p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: color var(--transition-speed);
+    }
+
+    .controls {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: var(--control-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      flex-wrap: wrap;
+      align-items: center;
+      transition: background-color var(--transition-speed), border-color var(--transition-speed);
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1 1 250px;
+    }
+
+    .control-group label {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text-color);
+      white-space: nowrap;
+      transition: color var(--transition-speed);
+    }
+
+    .control-group select {
+      padding: 6px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      font-size: 13px;
+      font-family: var(--font-family);
+      background-color: var(--container-bg);
+      color: var(--text-color);
+      width: 100%;
+      box-sizing: border-box;
+      cursor: pointer;
+      transition: background-color var(--transition-speed), border-color var(--transition-speed), color var(--transition-speed);
+    }
+
+    .control-group select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .theme-btn-group {
+      flex: 0 0 auto;
+    }
+
+    .theme-btn {
+      padding: 6px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      background-color: var(--container-bg);
+      color: var(--text-color);
+      font-family: var(--font-family);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 33px;
+      transition: background-color var(--transition-speed), border-color var(--transition-speed), color var(--transition-speed);
+    }
+
+    .theme-btn:hover {
+      background-color: var(--hover-bg);
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--border-color);
+      margin-top: 15px;
+      transition: border-color var(--transition-speed);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      table-layout: fixed;
+    }
+
+    caption {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-color);
+      padding: 8px 0;
+      caption-side: top;
+      text-align: left;
+      text-transform: uppercase;
+      border-left: 4px solid var(--primary-color);
+      padding-left: 10px;
+      margin-bottom: 10px;
+      transition: color var(--transition-speed);
+    }
+
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 10px 8px;
+      text-align: center;
+      vertical-align: middle;
+      transition: border-color var(--transition-speed), background-color var(--transition-speed);
+    }
+
+    thead th {
+      background-color: var(--header-bg);
+      color: var(--header-text);
+      font-weight: 700;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    tbody th {
+      background-color: var(--control-bg);
+      color: var(--text-color);
+      font-weight: 700;
+    }
+
+    tbody td[data-code] {
+      font-weight: 600;
+    }
+
+    tbody td[data-code]:hover {
+      background-color: var(--hover-bg);
+      cursor: pointer;
+    }
+
+    .break-row td, .event-row td {
+      background-color: var(--break-bg);
+      color: var(--break-text);
+      font-weight: 700;
+      font-style: italic;
+      border-top: 2px solid var(--border-color);
+      border-bottom: 2px solid var(--border-color);
+      transition: background-color var(--transition-speed), color var(--transition-speed);
+    }
+
+    tbody th.day-header {
+      background-color: var(--control-bg);
+      color: var(--text-color);
+      font-weight: 700;
+      font-size: 13px;
+      text-align: center;
+      padding: 10px;
+      width: 80px;
+      border-right: 2px solid var(--border-color);
+    }
+
+    .tooltip {
+      position: absolute;
+      padding: 8px 12px;
+      background-color: #0f172a;
+      color: #ffffff;
+      border: 1px solid #334155;
+      border-radius: 2px;
+      font-size: 12px;
+      z-index: 1000;
+      pointer-events: none;
+      line-height: 1.4;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      display: none;
+      box-sizing: border-box;
+    }
+
+    body.dark-theme .tooltip {
+      background-color: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #475569;
+    }
+
+    .schedule-cards {
+      display: none;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border-color);
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: color var(--transition-speed), border-color var(--transition-speed);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      
+      .container {
+        padding: 15px;
+      }
+      
+      .header h1 {
+        font-size: 16px;
+      }
+      
+      .header p {
+        font-size: 11px;
+      }
+      
+      .controls {
+        padding: 12px;
+        gap: 12px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .control-group {
+        flex: 1 1 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+      }
+      
+      .theme-btn-group {
+        align-self: center;
+        margin-top: 5px;
+      }
+      
+      #schedule-container table.day-view-table {
+        display: none;
+      }
+      
+      #schedule-container .table-wrapper {
+        border: none;
+      }
+      
+      .schedule-cards {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-top: 15px;
+      }
+      
+      .class-card {
+        background-color: var(--container-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 2px;
+        padding: 12px;
+        transition: background-color var(--transition-speed), border-color var(--transition-speed);
+      }
+      
+      .class-card h3 {
+        margin: 0 0 10px 0;
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 4px;
+        font-size: 14px;
+        text-transform: uppercase;
+        transition: color var(--transition-speed);
+      }
+      
+      .card-period {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 12px;
+        align-items: center;
+        transition: border-color var(--transition-speed);
+      }
+      
+      .card-period:last-child {
+        border-bottom: none;
+      }
+      
+      .card-period-time {
+        font-weight: 600;
+        color: var(--text-color);
+      }
+      
+      .card-period-subject {
+        font-weight: 700;
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .card-period-teacher {
+        font-size: 10px;
+        color: var(--text-muted);
+        font-weight: 400;
+        margin-top: 1px;
+      }
+      
+      .tooltip {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>SEKOLAH MENENGAH ATAS NEGERI 21 BEKASI</h1>
+      <p id="header-subtitle">JADWAL PELAJARAN SEMESTER GANJIL 2025 / 2026</p>
+    </header>
+    
+    <section class="controls">
+      <div class="control-group">
+        <label for="shift-mode">SHIFT:</label>
+        <select id="shift-mode">
+          <option value="pagi">Pagi</option>
+          <option value="siang" selected>Siang</option>
+        </select>
+      </div>
+      
+      <div class="control-group">
+        <label for="view-mode">TAMPILKAN BERDASARKAN:</label>
+        <select id="view-mode">
+          <option value="day" selected>Hari</option>
+          <option value="class">Kelas</option>
+          <option value="piket">Jadwal Piket</option>
+        </select>
+      </div>
+      
+      <div class="control-group" id="selector-group">
+        <label for="selector" id="selector-label">PILIH HARI ATAU KELAS:</label>
+        <select id="selector">
+          <!-- Dynamic Options -->
+        </select>
+      </div>
+
+      <div class="control-group theme-btn-group">
+        <button id="theme-toggle" class="theme-btn">
+          <span class="theme-btn-text">TEMA: GELAP</span>
+        </button>
+      </div>
+    </section>
+    
+    <main id="schedule-container" role="main">
+      <!-- Dynamic Table or Cards -->
+    </main>
+    
+    <div id="tooltip" class="tooltip" aria-hidden="true" role="tooltip"></div>
+    
+    <footer class="footer">
+      <p>Made by Bayumi A</p>
+    </footer>
+  </div>
+
+  <script>
+    const scheduleData = {"teachers": {"A1": {"name": "Muhammad Riqqo As-Syuja, S.Pd.", "subject": "Pendidikan Agama Islam"}, "A2": {"name": "Rochayah Alfi Rahmani, S.Ag.", "subject": "Pendidikan Agama Islam"}, "KEMENAG": {"name": "KEMENTERIAN AGAMA", "subject": "Pendidikan Agama Kristen/Katolik"}, "B1": {"name": "Nurrila Risnida, S.Pd., M.Pd.", "subject": "Biologi"}, "B2": {"name": "Julia Alma Puspita, S.Pd.", "subject": "Biologi"}, "C1": {"name": "Miftah Falakhi, S.Pd.", "subject": "Bahasa Indonesia Tingkat Lanjut"}, "C2": {"name": "Rahmi Mayta Purwatiningsih, S.Pd.", "subject": "Bahasa Indonesia Tingkat Lanjut"}, "D1": {"name": "Tuhfah, S.Pd", "subject": "Bahasa Sunda"}, "E1": {"name": "Ririn Oktariyani, S.Pd.", "subject": "Ekonomi"}, "E2": {"name": "Roza Audyna Sikumbang, S.Pd.", "subject": "Ekonomi"}, "F1": {"name": "Raden Dicky Agung Nugroho, S.Si.", "subject": "Fisika"}, "F2": {"name": "Putri Nabila Sasti, S.Pd.", "subject": "Fisika"}, "G1": {"name": "Fikih Hidayat, S.Pd.", "subject": "Geografi"}, "G2": {"name": "Lia Alvianti, S.Pd.", "subject": "Geografi"}, "H1": {"name": "Ana Zulfasari, M.Pd.", "subject": "Bahasa Indonesia"}, "H2": {"name": "Miftah Falakhi, S.Pd.", "subject": "Bahasa Indonesia"}, "H3": {"name": "Rahmi Mayta Purwatiningsih, S.Pd.", "subject": "Bahasa Indonesia"}, "I1": {"name": "Defri Zulkifli, S.Kom.", "subject": "Informatika"}, "I2": {"name": "Mardani, S.Kom.", "subject": "Informatika"}, "I3": {"name": "Nurhidayati Luthfiralda, S.Pd.", "subject": "Informatika"}, "KIM1": {"name": "Anggita, S.Pd.", "subject": "Kimia"}, "KIM2": {"name": "Arini Kamalia Haris, S.Pd.", "subject": "Kimia"}, "M1": {"name": "Amalia Rofiah, S.Si.,M.Pd.", "subject": "Matematika"}, "M2": {"name": "Rina Sulastri Tambun, S.Pd.", "subject": "Matematika"}, "M3": {"name": "Yulia Setyawati, S.Pd.", "subject": "Matematika"}, "M5": {"name": "Nurhidayati Luthfiralda, S.Pd.", "subject": "Matematika"}, "N1": {"name": "Lala Kadarsih, S.Pd., M.Pd.", "subject": "Bahasa Inggris"}, "N2": {"name": "Iswadi, S.Pd., M.Pd.", "subject": "Bahasa Inggris"}, "N3": {"name": "Djasmi Faujiah, S. Pd", "subject": "Bahasa Inggris"}, "L2": {"name": "Djasmi Faujiah, S. Pd", "subject": "Bahasa Inggris Tingkat Lanjut"}, "O1": {"name": "Alif Hidayat, S.Pd.", "subject": "PJOK"}, "O2": {"name": "Ahmad Rahmadani, S.Pd.", "subject": "PJOK"}, "P2": {"name": "Arya Auliya Muhammad,S.Pd", "subject": "Pendidikan Pancasila"}, "P1": {"name": "Triana Komala Sari, S.Pd.", "subject": "Pendidikan Pancasila"}, "Q1": {"name": "Imamah Mutmainnah, S.Pd.", "subject": "Seni"}, "Q2": {"name": "Fazrin Nasrullah, S. Pd", "subject": "Seni Budaya"}, "S1": {"name": "Heri Kiswanto, S.Pd.", "subject": "Sejarah Indonesia"}, "S2": {"name": "Anita Megamarinti, S.Pd.", "subject": "Sejarah"}, "T1": {"name": "Rina Sulastri Tambun, S.Pd.", "subject": "Matematika Tingkat Lanjut"}, "T2": {"name": "Nurhidayati Luthfiralda, S.Pd.", "subject": "Matematika Tingkat Lanjut"}, "V1": {"name": "Adam Darmawan, S.Pd.", "subject": "Sosiologi"}, "V3": {"name": "Putri Nabila Sasti, S.Pd", "subject": "Sosiologi"}, "V4": {"name": "Julia Alma Puspita, S.Pd.", "subject": "Sosiologi"}, "V5": {"name": "Arya Auliya Muhammad,S.Pd", "subject": "Sosiologi"}, "Z": {"name": "Anggi Nugrahani Arifyanti, S.Pd", "subject": "Bahasa Jepang"}, "BK1": {"name": "Vidia Anggita, S.Pd.", "subject": "Bimbingan Konseling"}, "BK2": {"name": "M. Ibnu Sena, S.Pd.", "subject": "Bimbingan Konseling"}, "BK3": {"name": "Yanto, S.Pd.", "subject": "Bimbingan Konseling"}, "U1": {"name": "Roza Audyna Sikumbang, S.Pd.", "subject": "PKWU"}, "U2": {"name": "Evi Liziana, S.P.", "subject": "PKWU"}, "M4": {"name": "Abdurrahman Ansori, M.Pd.", "subject": "Matematika"}, "K1": {"name": "Anggita, S.Pd.", "subject": "Kimia"}, "K2": {"name": "Arini Kamalia Haris, S.Pd.", "subject": "Kimia"}}, "pagi": {"classes": ["XII.1", "XII.2", "XII.3", "XII.4", "XII.5", "XII.6", "XII.7", "XII.8", "XI.5", "XI.6", "XI.7", "XI.8"], "schedule": {"Senin": [{"time": "06.30-07.00", "period": "0", "isEvent": true, "text": "UPACARA BENDERA"}, {"time": "07.00-07.30", "period": "1", "isEvent": false, "cells": {"XII.1": "S2", "XII.2": "H3", "XII.3": "T1", "XII.4": "P1", "XII.5": "E1", "XII.6": "BK1", "XII.7": "V1", "XII.8": "O1", "XI.5": "E2", "XI.6": "G2", "XI.7": "M4", "XI.8": "Q1"}}, {"time": "07.30-08.00", "period": "2", "isEvent": false, "cells": {"XII.1": "S2", "XII.2": "H3", "XII.3": "T1", "XII.4": "P1", "XII.5": "E1", "XII.6": "BK1", "XII.7": "V1", "XII.8": "O1", "XI.5": "E2", "XI.6": "G2", "XI.7": "M4", "XI.8": "Q1"}}, {"time": "08.00-08.30", "period": "3", "isEvent": false, "cells": {"XII.1": "H3", "XII.2": "KIM1", "XII.3": "M1", "XII.4": "E1", "XII.5": "G1", "XII.6": "V1", "XII.7": "M3", "XII.8": "O1", "XI.5": "M4", "XI.6": "BK2", "XI.7": "E2", "XI.8": "H2"}}, {"time": "08.30-09.00", "period": "4", "isEvent": false, "cells": {"XII.1": "H3", "XII.2": "KIM1", "XII.3": "M1", "XII.4": "E1", "XII.5": "G1", "XII.6": "V1", "XII.7": "M3", "XII.8": "N1", "XI.5": "M4", "XI.6": "BK2", "XI.7": "E2", "XI.8": "H2"}}, {"time": "09.00-09.30", "period": "0", "isEvent": true, "text": "ISTIRAHAT"}, {"time": "09.30-10.00", "period": "5", "isEvent": false, "cells": {"XII.1": "T1", "XII.2": "KIM1", "XII.3": "P1", "XII.4": "S2", "XII.5": "H3", "XII.6": "G1", "XII.7": "E1", "XII.8": "N1", "XI.5": "M4", "XI.6": "E2", "XI.7": "D1", "XI.8": "P2"}}, {"time": "10.00-10.30", "period": "6", "isEvent": false, "cells": {"XII.1": "T1", "XII.2": "O1", "XII.3": "P1", "XII.4": "S2", "XII.5": "H3", "XII.6": "G1", "XII.7": "E1", "XII.8": "N1", "XI.5": "M4", "XI.6": "E2", "XI.7": "D1", "XI.8": "P2"}}, {"time": "10.30-11.00", "period": "7", "isEvent": false, "cells": {"XII.1": "P1", "XII.2": "O1", "XII.3": "S2", "XII.4": "H3", "XII.5": "U1", "XII.6": "E1", "XII.7": "G1", "XII.8": "L2", "XI.5": "G2", "XI.6": "M4", "XI.7": "H2", "XI.8": "D1"}}, {"time": "11.00-11.30", "period": "8", "isEvent": false, "cells": {"XII.1": "P1", "XII.2": "O1", "XII.3": "S2", "XII.4": "H3", "XII.5": "U1", "XII.6": "E1", "XII.7": "G1", "XII.8": "L2", "XI.5": "G2", "XI.6": "M4", "XI.7": "H2", "XI.8": "D1"}}], "Selasa": [{"time": "06.30-07.00", "period": "1", "isEvent": false, "cells": {"XII.1": "I1", "XII.2": "T1", "XII.3": "Q2", "XII.4": "N1", "XII.5": "P1", "XII.6": "H3", "XII.7": "G1", "XII.8": "M3", "XI.5": "V3", "XI.6": "O2", "XI.7": "I2", "XI.8": "S2"}}, {"time": "07.00-07.30", "period": "2", "isEvent": false, "cells": {"XII.1": "I1", "XII.2": "T1", "XII.3": "Q2", "XII.4": "N1", "XII.5": "P1", "XII.6": "H3", "XII.7": "G1", "XII.8": "M3", "XI.5": "V3", "XI.6": "O2", "XI.7": "I2", "XI.8": "S2"}}, {"time": "07.30-08.00", "period": "3", "isEvent": false, "cells": {"XII.1": "I1", "XII.2": "P1", "XII.3": "KIM1", "XII.4": "N1", "XII.5": "G1", "XII.6": "E1", "XII.7": "O1", "XII.8": "H3", "XI.5": "V3", "XI.6": "O2", "XI.7": "BK2", "XI.8": "G2"}}, {"time": "08.00-08.30", "period": "4", "isEvent": false, "cells": {"XII.1": "A2", "XII.2": "P1", "XII.3": "KIM1", "XII.4": "BK1", "XII.5": "G1", "XII.6": "E1", "XII.7": "O1", "XII.8": "H3", "XI.5": "S2", "XI.6": "V3", "XI.7": "BK2", "XI.8": "G2"}}, {"time": "08.30-09.00", "period": "0", "isEvent": true, "text": "ISTIRAHAT"}, {"time": "09.00-09.30", "period": "5", "isEvent": false, "cells": {"XII.1": "A2", "XII.2": "H3", "XII.3": "KIM1", "XII.4": "BK1", "XII.5": "Q2", "XII.6": "N1", "XII.7": "O1", "XII.8": "V1", "XI.5": "S2", "XI.6": "V3", "XI.7": "H2", "XI.8": "I2"}}, {"time": "09.30-10.00", "period": "6", "isEvent": false, "cells": {"XII.1": "A2", "XII.2": "H3", "XII.3": "M1", "XII.4": "E1", "XII.5": "Q2", "XII.6": "N1", "XII.7": "S2", "XII.8": "V1", "XI.5": "D1", "XI.6": "V3", "XI.7": "G2", "XI.8": "I2"}}, {"time": "10.00-10.30", "period": "7", "isEvent": false, "cells": {"XII.1": "KIM1", "XII.2": "A2", "XII.3": "M1", "XII.4": "E1", "XII.5": "M3", "XII.6": "N1", "XII.7": "S2", "XII.8": "V1", "XI.5": "D1", "XI.6": "H2", "XI.7": "G2", "XI.8": "I2"}}, {"time": "10.30-11.00", "period": "8", "isEvent": false, "cells": {"XII.1": "KIM1", "XII.2": "A2", "XII.3": "H3", "XII.4": "V1", "XII.5": "BK1", "XII.6": "G1", "XII.7": "E1", "XII.8": "S2", "XI.5": "H2", "XI.6": "D1", "XI.7": "P2", "XI.8": "M4"}}, {"time": "11.00-11.30", "period": "9", "isEvent": false, "cells": {"XII.1": "KIM1", "XII.2": "A2", "XII.3": "H3", "XII.4": "V1", "XII.5": "BK1", "XII.6": "G1", "XII.7": "E1", "XII.8": "S2", "XI.5": "H2", "XI.6": "D1", "XI.7": "P2", "XI.8": "M4"}}], "Rabu": [{"time": "06.30-07.00", "period": "1", "isEvent": false, "cells": {"XII.1": "Q2", "XII.2": "T1", "XII.3": "F1", "XII.4": "G1", "XII.5": "O1", "XII.6": "H3", "XII.7": "M3", "XII.8": "L2", "XI.5": "G2", "XI.6": "M4", "XI.7": "N1", "XI.8": "V1"}}, {"time": "07.00-07.30", "period": "2", "isEvent": false, "cells": {"XII.1": "Q2", "XII.2": "T1", "XII.3": "F1", "XII.4": "G1", "XII.5": "O1", "XII.6": "H3", "XII.7": "M3", "XII.8": "L2", "XI.5": "G2", "XI.6": "M4", "XI.7": "N1", "XI.8": "V1"}}, {"time": "07.30-08.00", "period": "3", "isEvent": false, "cells": {"XII.1": "B1", "XII.2": "Q2", "XII.3": "F1", "XII.4": "A2", "XII.5": "O1", "XII.6": "S2", "XII.7": "U1", "XII.8": "BK1", "XI.5": "N3", "XI.6": "A1", "XI.7": "N1", "XI.8": "V1"}}, {"time": "08.00-08.30", "period": "4", "isEvent": false, "cells": {"XII.1": "B1", "XII.2": "Q2", "XII.3": "O1", "XII.4": "A2", "XII.5": "H3", "XII.6": "S2", "XII.7": "U1", "XII.8": "BK1", "XI.5": "N3", "XI.6": "A1", "XI.7": "M4", "XI.8": "G2"}}, {"time": "08.30-09.00", "period": "0", "isEvent": true, "text": "ISTIRAHAT"}, {"time": "09.00-09.30", "period": "5", "isEvent": false, "cells": {"XII.1": "B1", "XII.2": "S2", "XII.3": "O1", "XII.4": "A2", "XII.5": "H3", "XII.6": "Q2", "XII.7": "N1", "XII.8": "Z", "XI.5": "P1", "XI.6": "A1", "XI.7": "M4", "XI.8": "G2"}}, {"time": "09.30-10.00", "period": "6", "isEvent": false, "cells": {"XII.1": "T1", "XII.2": "S2", "XII.3": "O1", "XII.4": "U1", "XII.5": "V1", "XII.6": "Q2", "XII.7": "N1", "XII.8": "Z", "XI.5": "P1", "XI.6": "G2", "XI.7": "I2", "XI.8": "M4"}}, {"time": "10.00-10.30", "period": "7", "isEvent": false, "cells": {"XII.1": "T1", "XII.2": "B1", "XII.3": "A2", "XII.4": "U1", "XII.5": "V1", "XII.6": "Z", "XII.7": "N1", "XII.8": "C2", "XI.5": "A1", "XI.6": "G2", "XI.7": "I2", "XI.8": "M4"}}, {"time": "10.30-11.00", "period": "8", "isEvent": false, "cells": {"XII.1": "N1", "XII.2": "B1", "XII.3": "A2", "XII.4": "V1", "XII.5": "S2", "XII.6": "Z", "XII.7": "BK1", "XII.8": "C2", "XI.5": "A1", "XI.6": "Q1", "XI.7": "G2", "XI.8": "E2"}}, {"time": "11.00-11.30", "period": "9", "isEvent": false, "cells": {"XII.1": "N1", "XII.2": "B1", "XII.3": "A2", "XII.4": "V1", "XII.5": "S2", "XII.6": "Z", "XII.7": "BK1", "XII.8": "C2", "XI.5": "A1", "XI.6": "Q1", "XI.7": "G2", "XI.8": "E2"}}], "Kamis": [{"time": "06.30-07.00", "period": "1", "isEvent": false, "cells": {"XII.1": "N1", "XII.2": "I1", "XII.3": "BK1", "XII.4": "Z", "XII.5": "M3", "XII.6": "V1", "XII.7": "H3", "XII.8": "A2", "XI.5": "BK2", "XI.6": "N3", "XI.7": "U2", "XI.8": "O2"}}, {"time": "07.00-07.30", "period": "2", "isEvent": false, "cells": {"XII.1": "F1", "XII.2": "I1", "XII.3": "BK1", "XII.4": "Z", "XII.5": "M3", "XII.6": "V1", "XII.7": "H3", "XII.8": "A2", "XI.5": "BK2", "XI.6": "N3", "XI.7": "U2", "XI.8": "O2"}}, {"time": "07.30-08.00", "period": "3", "isEvent": false, "cells": {"XII.1": "F1", "XII.2": "I1", "XII.3": "N1", "XII.4": "Z", "XII.5": "M3", "XII.6": "U1", "XII.7": "P1", "XII.8": "A2", "XI.5": "U2", "XI.6": "N3", "XI.7": "S2", "XI.8": "A1"}}, {"time": "08.00-08.30", "period": "4", "isEvent": false, "cells": {"XII.1": "M1", "XII.2": "BK1", "XII.3": "N1", "XII.4": "Q2", "XII.5": "A2", "XII.6": "U1", "XII.7": "P1", "XII.8": "H3", "XI.5": "U2", "XI.6": "H2", "XI.7": "S2", "XI.8": "A1"}}, {"time": "08.30-09.00", "period": "0", "isEvent": true, "text": "ISTIRAHAT"}, {"time": "09.00-09.30", "period": "5", "isEvent": false, "cells": {"XII.1": "M1", "XII.2": "BK1", "XII.3": "N1", "XII.4": "Q2", "XII.5": "A2", "XII.6": "P1", "XII.7": "Z", "XII.8": "H3", "XI.5": "N3", "XI.6": "H2", "XI.7": "O2", "XI.8": "A1"}}, {"time": "09.30-10.00", "period": "6", "isEvent": false, "cells": {"XII.1": "M1", "XII.2": "F1", "XII.3": "B1", "XII.4": "H3", "XII.5": "A2", "XII.6": "P1", "XII.7": "Z", "XII.8": "Q2", "XI.5": "H2", "XI.6": "S2", "XI.7": "O2", "XI.8": "BK2"}}, {"time": "10.00-10.30", "period": "7", "isEvent": false, "cells": {"XII.1": "M1", "XII.2": "F1", "XII.3": "B1", "XII.4": "H3", "XII.5": "N1", "XII.6": "A2", "XII.7": "Z", "XII.8": "Q2", "XI.5": "O2", "XI.6": "S2", "XI.7": "A1", "XI.8": "BK2"}}, {"time": "10.30-11.00", "period": "8", "isEvent": false, "cells": {"XII.1": "BK1", "XII.2": "M1", "XII.3": "H3", "XII.4": "G1", "XII.5": "N1", "XII.6": "A2", "XII.7": "Q2", "XII.8": "P1", "XI.5": "O2", "XI.6": "E2", "XI.7": "A1", "XI.8": "H2"}}, {"time": "11.00-11.30", "period": "9", "isEvent": false, "cells": {"XII.1": "BK1", "XII.2": "M1", "XII.3": "H3", "XII.4": "G1", "XII.5": "N1", "XII.6": "A2", "XII.7": "Q2", "XII.8": "P1", "XI.5": "O2", "XI.6": "E2", "XI.7": "A1", "XI.8": "H2"}}], "Jumat": [{"time": "06.30-07.00", "period": "0", "isEvent": true, "text": "TADARUS/KAJIAN"}, {"time": "07.00-07.30", "period": "1", "isEvent": false, "cells": {"XII.1": "F1", "XII.2": "M1", "XII.3": "B1", "XII.4": "O1", "XII.5": "Z", "XII.6": "O2", "XII.7": "A2", "XII.8": "M3", "XI.5": "E2", "XI.6": "I2", "XI.7": "V1", "XI.8": "N1"}}, {"time": "07.30-08.00", "period": "2", "isEvent": false, "cells": {"XII.1": "F1", "XII.2": "M1", "XII.3": "T1", "XII.4": "O1", "XII.5": "Z", "XII.6": "O2", "XII.7": "A2", "XII.8": "M3", "XI.5": "E2", "XI.6": "I2", "XI.7": "V1", "XI.8": "N1"}}, {"time": "08.00-08.30", "period": "3", "isEvent": false, "cells": {"XII.1": "H3", "XII.2": "F1", "XII.3": "T1", "XII.4": "O1", "XII.5": "Z", "XII.6": "O2", "XII.7": "A2", "XII.8": "B1", "XI.5": "Q1", "XI.6": "I2", "XI.7": "V1", "XI.8": "N1"}}, {"time": "08.30-09.00", "period": "4", "isEvent": false, "cells": {"XII.1": "H3", "XII.2": "F1", "XII.3": "I1", "XII.4": "M1", "XII.5": "E1", "XII.6": "M3", "XII.7": "V1", "XII.8": "B1", "XI.5": "Q1", "XI.6": "P1", "XI.7": "E2", "XI.8": "U2"}}, {"time": "09.00-09.30", "period": "0", "isEvent": true, "text": "ISTIRAHAT"}, {"time": "09.30-10.00", "period": "5", "isEvent": false, "cells": {"XII.1": "O1", "XII.2": "N1", "XII.3": "I1", "XII.4": "M1", "XII.5": "E1", "XII.6": "M3", "XII.7": "V1", "XII.8": "B1", "XI.5": "I2", "XI.6": "P1", "XI.7": "E2", "XI.8": "U2"}}, {"time": "10.00-10.30", "period": "6", "isEvent": false, "cells": {"XII.1": "", "XII.2": "N1", "XII.3": "I1", "XII.4": "M1", "XII.5": "V1", "XII.6": "M3", "XII.7": "H3", "XII.8": "Z", "XI.5": "I2", "XI.6": "U2", "XI.7": "Q1", "XI.8": "E2"}}, {"time": "10.30-11.00", "period": "7", "isEvent": false, "cells": {"XII.1": "O1", "XII.2": "N1", "XII.3": "F1", "XII.4": "M1", "XII.5": "V1", "XII.6": "M3", "XII.7": "H3", "XII.8": "Z", "XI.5": "I2", "XI.6": "U2", "XI.7": "Q1", "XI.8": "E2"}}, {"time": "11.00-11.30", "period": "8", "isEvent": false, "cells": {"XII.1": "", "XII.2": "", "XII.3": "", "XII.4": "", "XII.5": "", "XII.6": "", "XII.7": "", "XII.8": "", "XI.5": "", "XI.6": "", "XI.7": "", "XI.8": ""}}]}}, "siang": {"classes": ["X.1", "X.2", "X.3", "X.4", "X.5", "X.6", "X.7", "X.8", "XI.1", "XI.2", "XI.3", "XI.4"], "schedule": {"Senin": [{"time": "12.30-13.00", "period": "1", "isEvent": false, "cells": {"X.1": "G2", "X.2": "H1", "X.3": "A1", "X.4": "P2", "X.5": "I1", "X.6": "KIM2", "X.7": "N2", "X.8": "V4", "XI.1": "F2", "XI.2": "S1", "XI.3": "D1", "XI.4": "L2"}}, {"time": "13.00-13.30", "period": "2", "isEvent": false, "cells": {"X.1": "G2", "X.2": "H1", "X.3": "A1", "X.4": "P2", "X.5": "I1", "X.6": "KIM2", "X.7": "N2", "X.8": "V4", "XI.1": "F2", "XI.2": "S1", "XI.3": "D1", "XI.4": "L2"}}, {"time": "13.30-14.00", "period": "3", "isEvent": false, "cells": {"X.1": "G2", "X.2": "H1", "X.3": "B2", "X.4": "I3", "X.5": "A1", "X.6": "KIM2", "X.7": "F1", "X.8": "E2", "XI.1": "F2", "XI.2": "H2", "XI.3": "O1", "XI.4": "L2"}}, {"time": "14.00-14.30", "period": "4", "isEvent": false, "cells": {"X.1": "M2", "X.2": "Q1", "X.3": "B2", "X.4": "I3", "X.5": "A1", "X.6": "G1", "X.7": "KIM2", "X.8": "F1", "XI.1": "G2", "XI.2": "H2", "XI.3": "O1", "XI.4": "M4"}}, {"time": "14.30-15.00", "period": "5", "isEvent": false, "cells": {"X.1": "M2", "X.2": "Q1", "X.3": "H1", "X.4": "B2", "X.5": "S1", "X.6": "G1", "X.7": "KIM2", "X.8": "P2", "XI.1": "G2", "XI.2": "H2", "XI.3": "O1", "XI.4": "M4"}}, {"time": "15.00-15.30", "period": "6", "isEvent": false, "cells": {"X.1": "N2", "X.2": "A1", "X.3": "Q1", "X.4": "B2", "X.5": "S1", "X.6": "G1", "X.7": "KIM2", "X.8": "P2", "XI.1": "M3", "XI.2": "F2", "XI.3": "M4", "XI.4": "I2"}}, {"time": "15.30-16.00", "period": "1", "isEvent": true, "text": "ISTIRAHAT"}, {"time": "16.00-16.30", "period": "7", "isEvent": false, "cells": {"X.1": "N2", "X.2": "A1", "X.3": "Q1", "X.4": "O2", "X.5": "M1", "X.6": "H1", "X.7": "O1", "X.8": "KIM2", "XI.1": "M3", "XI.2": "F2", "XI.3": "M4", "XI.4": "I2"}}, {"time": "16.30-17.00", "period": "8", "isEvent": false, "cells": {"X.1": "A1", "X.2": "B2", "X.3": "I3", "X.4": "O2", "X.5": "M1", "X.6": "H1", "X.7": "O1", "X.8": "KIM2", "XI.1": "S1", "XI.2": "M3", "XI.3": "F2", "XI.4": "BK2"}}, {"time": "17.00-17.30", "period": "9", "isEvent": false, "cells": {"X.1": "A1", "X.2": "B2", "X.3": "I3", "X.4": "O2", "X.5": "M1", "X.6": "H1", "X.7": "O1", "X.8": "KIM2", "XI.1": "S1", "XI.2": "M3", "XI.3": "F2", "XI.4": "BK2"}}], "Selasa": [{"time": "12.30-13.00", "period": "1", "isEvent": false, "cells": {"X.1": "M2", "X.2": "N2", "X.3": "G2", "X.4": "H1", "X.5": "B2", "X.6": "O2", "X.7": "BK3", "X.8": "E2", "XI.1": "D1", "XI.2": "F2", "XI.3": "T2", "XI.4": "I2"}}, {"time": "13.00-13.30", "period": "2", "isEvent": false, "cells": {"X.1": "M2", "X.2": "N2", "X.3": "G2", "X.4": "H1", "X.5": "B2", "X.6": "O2", "X.7": "BK3", "X.8": "E2", "XI.1": "D1", "XI.2": "F2", "XI.3": "T2", "XI.4": "I2"}}, {"time": "13.30-14.00", "period": "3", "isEvent": false, "cells": {"X.1": "P2", "X.2": "D1", "X.3": "G2", "X.4": "H1", "X.5": "E1", "X.6": "O2", "X.7": "E2", "X.8": "O1", "XI.1": "H2", "XI.2": "T2", "XI.3": "F2", "XI.4": "U2"}}, {"time": "14.00-14.30", "period": "4", "isEvent": false, "cells": {"X.1": "P2", "X.2": "D1", "X.3": "M2", "X.4": "M1", "X.5": "E1", "X.6": "S1", "X.7": "E2", "X.8": "O1", "XI.1": "H2", "XI.2": "T2", "XI.3": "F2", "XI.4": "U2"}}, {"time": "14.30-15.00", "period": "5", "isEvent": false, "cells": {"X.1": "H1", "X.2": "P2", "X.3": "M2", "X.4": "M1", "X.5": "E1", "X.6": "S1", "X.7": "M5", "X.8": "O1", "XI.1": "G2", "XI.2": "U2", "XI.3": "H2", "XI.4": "M4"}}, {"time": "15.00-15.30", "period": "6", "isEvent": false, "cells": {"X.1": "H1", "X.2": "P2", "X.3": "D1", "X.4": "S1", "X.5": "N2", "X.6": "B2", "X.7": "M5", "X.8": "BK3", "XI.1": "G2", "XI.2": "U2", "XI.3": "H2", "XI.4": "M4"}}, {"time": "15.30-16.00", "period": "1", "isEvent": true, "text": "ISTIRAHAT"}, {"time": "16.00-16.30", "period": "7", "isEvent": false, "cells": {"X.1": "H1", "X.2": "G2", "X.3": "D1", "X.4": "S1", "X.5": "N2", "X.6": "B2", "X.7": "M5", "X.8": "BK3", "XI.1": "E2", "XI.2": "B1", "XI.3": "H2", "XI.4": "O1"}}, {"time": "16.30-17.00", "period": "8", "isEvent": false, "cells": {"X.1": "D1", "X.2": "G2", "X.3": "S1", "X.4": "BK3", "X.5": "P2", "X.6": "M5", "X.7": "B2", "X.8": "N2", "XI.1": "E2", "XI.2": "B1", "XI.3": "M4", "XI.4": "O1"}}, {"time": "17.00-17.30", "period": "9", "isEvent": false, "cells": {"X.1": "D1", "X.2": "G2", "X.3": "S1", "X.4": "BK3", "X.5": "P2", "X.6": "M5", "X.7": "B2", "X.8": "N2", "XI.1": "E2", "XI.2": "B1", "XI.3": "M4", "XI.4": "O1"}}], "Rabu": [{"time": "12.30-13.00", "period": "1", "isEvent": false, "cells": {"X.1": "O2", "X.2": "E1", "X.3": "F2", "X.4": "KIM2", "X.5": "G2", "X.6": "A1", "X.7": "P2", "X.8": "M5", "XI.1": "M3", "XI.2": "A2", "XI.3": "P1", "XI.4": "N3"}}, {"time": "13.00-13.30", "period": "2", "isEvent": false, "cells": {"X.1": "O2", "X.2": "E1", "X.3": "F2", "X.4": "KIM2", "X.5": "G2", "X.6": "A1", "X.7": "P2", "X.8": "M5", "XI.1": "M3", "XI.2": "A2", "XI.3": "P1", "XI.4": "N3"}}, {"time": "13.30-14.00", "period": "3", "isEvent": false, "cells": {"X.1": "O2", "X.2": "M2", "X.3": "F2", "X.4": "KIM2", "X.5": "G2", "X.6": "P2", "X.7": "E2", "X.8": "M5", "XI.1": "U2", "XI.2": "A2", "XI.3": "S1", "XI.4": "N3"}}, {"time": "14.00-14.30", "period": "4", "isEvent": false, "cells": {"X.1": "KIM2", "X.2": "M2", "X.3": "BK3", "X.4": "F2", "X.5": "O2", "X.6": "P2", "X.7": "H1", "X.8": "M5", "XI.1": "U2", "XI.2": "P1", "XI.3": "S1", "XI.4": "C1"}}, {"time": "14.30-15.00", "period": "5", "isEvent": false, "cells": {"X.1": "KIM2", "X.2": "M2", "X.3": "BK3", "X.4": "F2", "X.5": "O2", "X.6": "E1", "X.7": "H1", "X.8": "B2", "XI.1": "E2", "XI.2": "P1", "XI.3": "U2", "XI.4": "C1"}}, {"time": "15.00-15.30", "period": "6", "isEvent": false, "cells": {"X.1": "KIM2", "X.2": "M2", "X.3": "P2", "X.4": "F2", "X.5": "O2", "X.6": "M5", "X.7": "H1", "X.8": "B2", "XI.1": "E2", "XI.2": "M3", "XI.3": "U2", "XI.4": "C1"}}, {"time": "15.30-16.00", "period": "1", "isEvent": true, "text": "ISTIRAHAT"}, {"time": "16.00-16.30", "period": "7", "isEvent": false, "cells": {"X.1": "E1", "X.2": "O2", "X.3": "P2", "X.4": "G2", "X.5": "KIM2", "X.6": "M5", "X.7": "A1", "X.8": "H1", "XI.1": "B1", "XI.2": "M3", "XI.3": "N3", "XI.4": "H2"}}, {"time": "16.30-17.00", "period": "8", "isEvent": false, "cells": {"X.1": "B2", "X.2": "O2", "X.3": "M2", "X.4": "G2", "X.5": "KIM2", "X.6": "BK3", "X.7": "A1", "X.8": "H1", "XI.1": "B1", "XI.2": "BK2", "XI.3": "N3", "XI.4": "H2"}}, {"time": "17.00-17.30", "period": "9", "isEvent": false, "cells": {"X.1": "B2", "X.2": "O2", "X.3": "M2", "X.4": "G2", "X.5": "KIM2", "X.6": "BK3", "X.7": "M5", "X.8": "H1", "XI.1": "B1", "XI.2": "BK2", "XI.3": "N3", "XI.4": "H2"}}], "Kamis": [{"time": "12.30-13.00", "period": "1", "isEvent": false, "cells": {"X.1": "E1", "X.2": "F2", "X.3": "H1", "X.4": "V5", "X.5": "D1", "X.6": "N2", "X.7": "Q1", "X.8": "S1", "XI.1": "A2", "XI.2": "T2", "XI.3": "Q2", "XI.4": "Z"}}, {"time": "13.00-13.30", "period": "2", "isEvent": false, "cells": {"X.1": "E1", "X.2": "F2", "X.3": "H1", "X.4": "V5", "X.5": "D1", "X.6": "N2", "X.7": "Q1", "X.8": "S1", "XI.1": "A2", "XI.2": "T2", "XI.3": "Q2", "XI.4": "Z"}}, {"time": "13.30-14.00", "period": "3", "isEvent": false, "cells": {"X.1": "V5", "X.2": "F2", "X.3": "N2", "X.4": "Q1", "X.5": "M1", "X.6": "E1", "X.7": "G1", "X.8": "A1", "XI.1": "N3", "XI.2": "Q2", "XI.3": "A2", "XI.4": "D1"}}, {"time": "14.00-14.30", "period": "4", "isEvent": false, "cells": {"X.1": "V5", "X.2": "KIM2", "X.3": "N2", "X.4": "Q1", "X.5": "F1", "X.6": "E1", "X.7": "G1", "X.8": "A1", "XI.1": "N3", "XI.2": "Q2", "XI.3": "A2", "XI.4": "D1"}}, {"time": "14.30-15.00", "period": "5", "isEvent": false, "cells": {"X.1": "F2", "X.2": "KIM2", "X.3": "V5", "X.4": "A1", "X.5": "F1", "X.6": "Q1", "X.7": "G1", "X.8": "I1", "XI.1": "N3", "XI.2": "D1", "XI.3": "A2", "XI.4": "Q2"}}, {"time": "15.00-15.30", "period": "6", "isEvent": false, "cells": {"X.1": "F2", "X.2": "KIM2", "X.3": "V5", "X.4": "A1", "X.5": "F1", "X.6": "Q1", "X.7": "S1", "X.8": "I1", "XI.1": "BK2", "XI.2": "D1", "XI.3": "T2", "XI.4": "Q2"}}, {"time": "15.30-16.00", "period": "1", "isEvent": true, "text": "ISTIRAHAT"}, {"time": "16.00-16.30", "period": "7", "isEvent": false, "cells": {"X.1": "F2", "X.2": "E1", "X.3": "KIM2", "X.4": "A1", "X.5": "H1", "X.6": "F1", "X.7": "S1", "X.8": "G1", "XI.1": "BK2", "XI.2": "N3", "XI.3": "T2", "XI.4": "A2"}}, {"time": "16.30-17.00", "period": "8", "isEvent": false, "cells": {"X.1": "S1", "X.2": "V5", "X.3": "KIM2", "X.4": "D1", "X.5": "H1", "X.6": "F1", "X.7": "I1", "X.8": "G1", "XI.1": "Q2", "XI.2": "N3", "XI.3": "BK2", "XI.4": "A2"}}, {"time": "17.00-17.30", "period": "9", "isEvent": false, "cells": {"X.1": "S1", "X.2": "V5", "X.3": "KIM2", "X.4": "D1", "X.5": "H1", "X.6": "F1", "X.7": "I1", "X.8": "G1", "XI.1": "Q2", "XI.2": "N3", "XI.3": "BK2", "XI.4": "A2"}}], "Jumat": [{"time": "11.30-13.00", "period": "1", "isEvent": true, "text": "PEND. AGAMA KRISTEN"}, {"time": "13.00-13.30", "period": "1", "isEvent": false, "cells": {"X.1": "BK3", "X.2": "S1", "X.3": "E1", "X.4": "N2", "X.5": "Q1", "X.6": "I1", "X.7": "V4", "X.8": "D1", "XI.1": "H2", "XI.2": "O1", "XI.3": "KIM1", "XI.4": "P1"}}, {"time": "13.30-14.00", "period": "2", "isEvent": false, "cells": {"X.1": "BK3", "X.2": "S1", "X.3": "E1", "X.4": "N2", "X.5": "Q1", "X.6": "I1", "X.7": "V4", "X.8": "D1", "XI.1": "H2", "XI.2": "O1", "XI.3": "KIM1", "XI.4": "P1"}}, {"time": "14.00-14.30", "period": "3", "isEvent": false, "cells": {"X.1": "I1", "X.2": "BK3", "X.3": "E1", "X.4": "M1", "X.5": "V4", "X.6": "D1", "X.7": "F1", "X.8": "Q1", "XI.1": "P1", "XI.2": "O1", "XI.3": "KIM1", "XI.4": "S1"}}, {"time": "14.30-15.00", "period": "4", "isEvent": false, "cells": {"X.1": "I1", "X.2": "BK3", "X.3": "O2", "X.4": "E1", "X.5": "V4", "X.6": "D1", "X.7": "F1", "X.8": "Q1", "XI.1": "P1", "XI.2": "KIM1", "XI.3": "B1", "XI.4": "S1"}}, {"time": "15.00-15.30", "period": "1", "isEvent": true, "text": "ISTIRAHAT"}, {"time": "15.30-16.00", "period": "5", "isEvent": false, "cells": {"X.1": "Q1", "X.2": "I1", "X.3": "O2", "X.4": "E1", "X.5": "BK3", "X.6": "V4", "X.7": "D1", "X.8": "F1", "XI.1": "O1", "XI.2": "KIM1", "XI.3": "B1", "XI.4": "Z"}}, {"time": "16.00-16.30", "period": "6", "isEvent": false, "cells": {"X.1": "Q1", "X.2": "I1", "X.3": "", "X.4": "E1", "X.5": "BK3", "X.6": "V4", "X.7": "D1", "X.8": "F1", "XI.1": "O1", "XI.2": "KIM1", "XI.3": "B1", "XI.4": "Z"}}, {"time": "16.30-17.00", "period": "7", "isEvent": true, "text": "UPACARA PENURUNAN BENDERA/APEL SORE"}, {"time": "17.00-17.30", "period": "8", "isEvent": true, "text": "KAJIAN JUMAT SORE"}]}}, "piket": {"pagi": {"guru": {"Senin": ["Defri Zulkifli, S.Kom.", "Evi Liziana, S.P."], "Selasa": ["Rina Sulastri Tambun, S.Pd.", "Roza Audyna Sikumbang, S.Pd."], "Rabu": ["Triana Komala Sari, S.Pd.", "Yulia Setyawati, S.Pd."], "Kamis": ["Ririn Oktariyani, S.Pd.", "Anggita, S.Pd."], "Jumat": ["Rahmi Mayta Purwatiningsih, S.Pd.", "Triana Komala Sari, S.Pd."]}, "wakasek": {"Senin": ["Ana Zulfasari, M.Pd.", "Amalia Rofiah, S.Si.,M.Pd."], "Selasa": ["Ana Zulfasari, M.Pd.", "Imamah Mutmainnah, S.Pd."], "Rabu": ["Iswadi, S.Pd., M.Pd.", "Raden Dicky Agung Nugroho, S.Si."], "Kamis": ["Fikih Hidayat,S.Pd", "Adam Darmawan, S.Pd."], "Jumat": ["Iswadi, S.Pd., M.Pd.", "Heri Kiswanto, S.Pd."]}, "bk": {"Senin": ["Yanto, S.Pd."], "Selasa": ["Yanto, S.Pd."], "Rabu": ["M. Ibnu Sena, S.Pd."], "Kamis": ["M. Ibnu Sena, S.Pd."], "Jumat": ["Vidia Anggita, S.Pd."]}}, "siang": {"guru": {"Senin": ["Lala Kadarsih, M.Pd.", "Evi Liziana, S.P."], "Selasa": ["Nurrila Risnida, S.Pd.", "Yulia Setyawati, S.Pd."], "Rabu": ["Anggita, S.Pd.", "Alif Hidayat, S.Pd."], "Kamis": ["Anita Megamarinti, S.Pd.", "Mardani, S.Kom."], "Jumat": ["Miftah Falakhi, S.Pd.", "Rina Sulastri Tambun, S.Pd."]}, "wakasek": {"Senin": ["Fikih Hidayat, S.Pd.", "Raden Dicky Agung Nugroho, S.Si."], "Selasa": ["Iswadi, S.Pd.", "Heri Kiswanto, S.Pd."], "Rabu": ["Iswadi, S.Pd.", "Imamah Mutmainnah, S.Pd."], "Kamis": ["Ana Zulfasari, S.Pd.", "Adam Darmawan, S.Pd."], "Jumat": ["Fikih Hidayat, S.Pd.", "Amalia Rofiah, S.Si.,M.Pd."]}, "bk": {"Senin": ["Yanto, S.Pd."], "Selasa": ["M. Ibnu Sena, S.Pd."], "Rabu": ["M. Ibnu Sena, S.Pd."], "Kamis": ["Vidia Anggita, S.Pd."], "Jumat": ["Yanto, S.Pd."]}}}};
+
+    const shiftModeSelect = document.getElementById('shift-mode');
+    const viewModeSelect = document.getElementById('view-mode');
+    const selectorSelect = document.getElementById('selector');
+    const selectorGroup = document.getElementById('selector-group');
+    const selectorLabel = document.getElementById('selector-label');
+    const scheduleContainer = document.getElementById('schedule-container');
+    const headerSubtitle = document.getElementById('header-subtitle');
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const tooltip = document.getElementById('tooltip');
+
+    function updateThemeButtonText() {
+      const btnText = themeToggleBtn.querySelector('.theme-btn-text');
+      if (document.body.classList.contains('dark-theme')) {
+        btnText.textContent = 'TEMA: TERANG';
+      } else {
+        btnText.textContent = 'TEMA: GELAP';
+      }
+    }
+
+    // Theme Toggle Handler
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark-theme');
+      updateThemeButtonText();
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark-theme');
+      if (document.body.classList.contains('dark-theme')) {
+        localStorage.setItem('theme', 'dark');
+      } else {
+        localStorage.setItem('theme', 'light');
+      }
+      updateThemeButtonText();
+    });
+
+    // Populate the selector dropdown dynamically
+    function populateSelector(restoreSelection = true) {
+      const shift = shiftModeSelect.value;
+      const viewMode = viewModeSelect.value;
+      const prevVal = selectorSelect.value;
+      
+      selectorSelect.innerHTML = '';
+      
+      if (viewMode === 'day') {
+        selectorGroup.style.display = 'flex';
+        selectorLabel.innerText = 'PILIH HARI:';
+        const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+        days.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d;
+          opt.textContent = d;
+          selectorSelect.appendChild(opt);
+        });
+        if (restoreSelection && days.includes(prevVal)) {
+          selectorSelect.value = prevVal;
+        } else {
+          selectorSelect.value = 'Senin';
+        }
+      } else if (viewMode === 'class') {
+        selectorGroup.style.display = 'flex';
+        selectorLabel.innerText = 'PILIH KELAS:';
+        const classes = scheduleData[shift].classes;
+        classes.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c;
+          selectorSelect.appendChild(opt);
+        });
+        if (restoreSelection && classes.includes(prevVal)) {
+          selectorSelect.value = prevVal;
+        } else {
+          selectorSelect.value = classes[0];
+        }
+      } else {
+        selectorGroup.style.display = 'none';
+      }
+    }
+
+    // Render schedule container based on filters
+    function render() {
+      const shift = shiftModeSelect.value;
+      const viewMode = viewModeSelect.value;
+      const selection = selectorSelect.value;
+      
+      // Update header subtitle
+      headerSubtitle.textContent = "JADWAL PELAJARAN SEMESTER GANJIL 2025 / 2026 (SHIFT " + shift.toUpperCase() + ")";
+      
+      if (viewMode === 'day') {
+        renderDayView(shift, selection);
+      } else if (viewMode === 'class') {
+        renderClassView(shift, selection);
+      } else if (viewMode === 'piket') {
+        renderPiketView(shift);
+      }
+    }
+
+    function renderDayView(shift, day) {
+      const classes = scheduleData[shift].classes;
+      const rows = scheduleData[shift].schedule[day];
+      
+      // Desktop Table
+      let tableHtml = `
+        <table class="day-view-table">
+          <caption>Jadwal Hari ${day}</caption>
+          <thead>
+            <tr>
+              <th style="width: 80px;">Jam Ke-</th>
+              <th style="width: 110px;">Waktu</th>
+              ${classes.map(c => "<th>" + c + "</th>").join('')}
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      
+      rows.forEach(row => {
+        if (row.isEvent) {
+          tableHtml += `
+            <tr class="break-row">
+              <td colspan="${classes.length + 2}">${row.text} (${row.time})</td>
+            </tr>
+          `;
+        } else {
+          tableHtml += `
+            <tr>
+              <th>${row.period}</th>
+              <td>${row.time}</td>
+              ${classes.map(c => {
+                const code = row.cells[c] || '';
+                return '<td data-code="' + code + '">' + code + '</td>';
+              }).join('')}
+            </tr>
+          `;
+        }
+      });
+      
+      tableHtml += `
+          </tbody>
+        </table>
+      `;
+      
+      // Mobile Cards
+      let cardsHtml = `<div class="schedule-cards">`;
+      classes.forEach(c => {
+        cardsHtml += `
+          <div class="class-card">
+            <h3>Kelas ${c}</h3>
+        `;
+        
+        rows.forEach(row => {
+          if (row.isEvent) {
+            cardsHtml += `
+              <div class="card-period break-period" style="background-color: var(--break-bg); color: var(--break-text); font-weight: bold; font-style: italic; padding: 8px; border-radius: 2px; margin: 6px 0; text-align: center; border: 1px solid var(--border-color);">
+                ${row.text} (${row.time})
+              </div>
+            `;
+          } else {
+            const code = row.cells[c] || '';
+            const t = scheduleData.teachers[code];
+            if (code) {
+              cardsHtml += `
+                <div class="card-period" data-code="${code}">
+                  <span class="card-period-time">Jam ${row.period} (${row.time})</span>
+                  <span class="card-period-subject">
+                    ${t ? t.subject : code}
+                    <span class="card-period-teacher">${t ? t.name : ''}</span>
+                  </span>
+                </div>
+              `;
+            } else {
+              cardsHtml += `
+                <div class="card-period">
+                  <span class="card-period-time" style="color: var(--text-muted);">Jam ${row.period} (${row.time})</span>
+                  <span class="card-period-subject" style="color: var(--text-muted); font-style: italic;">Tidak Ada Kelas</span>
+                </div>
+              `;
+            }
+          }
+        });
+        
+        cardsHtml += `</div>`;
+      });
+      cardsHtml += `</div>`;
+      
+      scheduleContainer.innerHTML = `<div class="table-wrapper">${tableHtml}</div>${cardsHtml}`;
+    }
+
+    function renderClassView(shift, className) {
+      const schedule = scheduleData[shift].schedule;
+      const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+      
+      let html = `
+        <table class="class-view-table">
+          <caption>Jadwal Kelas ${className}</caption>
+          <thead>
+            <tr>
+              <th style="width: 100px;">Hari</th>
+              <th style="width: 80px;">Jam Ke-</th>
+              <th style="width: 120px;">Waktu</th>
+              <th>Mata Pelajaran</th>
+              <th>Guru</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      
+      days.forEach(day => {
+        const dayRows = schedule[day];
+        dayRows.forEach((row, rIdx) => {
+          const isFirst = rIdx === 0;
+          const dayHeaderHtml = isFirst ? `<th class="day-header" rowspan="${dayRows.length}">${day}</th>` : '';
+          
+          if (row.isEvent) {
+            html += `
+              <tr class="break-row">
+                ${dayHeaderHtml}
+                <td colspan="4">${row.text} (${row.time})</td>
+              </tr>
+            `;
+          } else {
+            const code = row.cells[className] || '';
+            const t = scheduleData.teachers[code];
+            html += `
+              <tr>
+                ${dayHeaderHtml}
+                <td>${row.period}</td>
+                <td>${row.time}</td>
+                <td style="font-weight: 600;">${t ? t.subject : (code || '-')}</td>
+                <td>${t ? t.name : '-'}</td>
+              </tr>
+            `;
+          }
+        });
+      });
+      
+      html += `
+          </tbody>
+        </table>
+      `;
+      
+      scheduleContainer.innerHTML = `<div class="table-wrapper">${html}</div>`;
+    }
+
+    function renderPiketView(shift) {
+      const piket = scheduleData.piket[shift];
+      
+      let html = `
+        <table class="piket-table">
+          <caption>Jadwal Piket Guru & Staff - Shift ${shift === 'pagi' ? 'Pagi' : 'Siang'}</caption>
+          <thead>
+            <tr>
+              <th style="width: 180px;">Petugas Piket</th>
+              <th>Senin</th>
+              <th>Selasa</th>
+              <th>Rabu</th>
+              <th>Kamis</th>
+              <th>Jumat</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Piket Guru</th>
+              <td>${piket.guru.Senin.join('<br>')}</td>
+              <td>${piket.guru.Selasa.join('<br>')}</td>
+              <td>${piket.guru.Rabu.join('<br>')}</td>
+              <td>${piket.guru.Kamis.join('<br>')}</td>
+              <td>${piket.guru.Jumat.join('<br>')}</td>
+            </tr>
+            <tr>
+              <th>Wakasek & Staff</th>
+              <td>${piket.wakasek.Senin.join('<br>')}</td>
+              <td>${piket.wakasek.Selasa.join('<br>')}</td>
+              <td>${piket.wakasek.Rabu.join('<br>')}</td>
+              <td>${piket.wakasek.Kamis.join('<br>')}</td>
+              <td>${piket.wakasek.Jumat.join('<br>')}</td>
+            </tr>
+            <tr>
+              <th>Guru BK</th>
+              <td>${piket.bk.Senin.join('<br>')}</td>
+              <td>${piket.bk.Selasa.join('<br>')}</td>
+              <td>${piket.bk.Rabu.join('<br>')}</td>
+              <td>${piket.bk.Kamis.join('<br>')}</td>
+              <td>${piket.bk.Jumat.join('<br>')}</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+      
+      scheduleContainer.innerHTML = `<div class="table-wrapper">${html}</div>`;
+    }
+
+    // Events
+    shiftModeSelect.addEventListener('change', () => {
+      populateSelector(false);
+      render();
+    });
+
+    viewModeSelect.addEventListener('change', () => {
+      populateSelector(true);
+      render();
+    });
+
+    selectorSelect.addEventListener('change', render);
+
+    // Tooltip implementation for desktop hover
+    document.addEventListener('mouseover', function(e) {
+      const target = e.target.closest('td[data-code]');
+      if (target) {
+        const code = target.getAttribute('data-code');
+        if (code && scheduleData.teachers[code]) {
+          const t = scheduleData.teachers[code];
+          tooltip.innerHTML = `<strong>${t.name}</strong><br>${t.subject}`;
+          tooltip.style.display = 'block';
+        }
+      }
+    });
+
+    document.addEventListener('mousemove', function(e) {
+      if (tooltip.style.display === 'block') {
+        const xOffset = e.pageX + 15;
+        const yOffset = e.pageY + 15;
+        tooltip.style.left = xOffset + 'px';
+        tooltip.style.top = yOffset + 'px';
+      }
+    });
+
+    document.addEventListener('mouseout', function(e) {
+      const target = e.target.closest('td[data-code]');
+      if (target) {
+        tooltip.style.display = 'none';
+      }
+    });
+
+    // Initialize
+    populateSelector();
+    render();
+  </script>
+</body>
+</html>
