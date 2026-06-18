@@ -19,7 +19,7 @@ Anda dapat melakukan kontribusi dengan cara mengirimkan **Pull Request (PR)**:
 
 1. **Fork** repositori ini ke akun GitHub Anda.
 2. Buat branch baru untuk perubahan Anda (contoh: `git checkout -b update-jadwal-kelas-x`).
-3. Lakukan perubahan data jadwal di `index.html` atau data terstruktur di `schedule_data.json`.
+3. Lakukan perubahan data jadwal di `schedule_data.json`.
 4. **Commit** perubahan Anda dengan pesan yang jelas (contoh: `git commit -m "Update jadwal kelas X.5 semester ganjil"`).
 5. **Push** branch Anda ke repositori fork Anda (`git push origin update-jadwal-kelas-x`).
 6. Kirimkan **Pull Request** dari repositori fork Anda ke repositori utama ini untuk ditinjau.

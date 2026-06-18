@@ -1,11 +1,11 @@
-// i read on reddit that using a "state object" is better than querying the dom every time.
-// i still don't really get it but this prevents the dropdowns from desyncing.
+console.log("%cMy favourite movie is SCARFACE", "color: #e67e22; font-weight: bold;");
+
 const AppState = {
     shift: 'siang',
     view: 'day',
     target: 'Senin',
     theme: localStorage.getItem('theme') || 'light',
-    data: null // Will hold our fetched JSON
+    data: null
 };
 
 // DOM references
@@ -36,9 +36,6 @@ themeToggleBtn.addEventListener('click', () => {
 });
 
 // --- DATA FETCHING ---
-// TODO: write a python script to convert the school's excel sheet to this json format. doing this manually in notepad sucks.
-// async await magic spell i learned from a youtube short.
-// if the json file has a typo this whole thing crashes and i have no idea how to debug it.
 async function loadSchedule() {
     try {
         const response = await fetch('./schedule_data.json');
@@ -47,13 +44,12 @@ async function loadSchedule() {
         populateSelector();
         render();
     } catch (error) {
-        console.error("bruh the json is broken", error);
+        console.error("Failed to load schedule data", error);
         scheduleContainer.innerHTML = "<p style='color:red; text-align:center;'>Error: Data jadwal gagal dimuat. Cek console atau tanya Bayumi.</p>";
     }
 }
 
 // --- UI RENDERING ---
-// i clear the dropdown and rebuild it every time. is this bad? probably. but it works.
 function populateSelector() {
     selectorSelect.innerHTML = ''; 
     
@@ -79,11 +75,9 @@ function populateSelector() {
         selectorGroup.style.display = 'none';
     }
 
-    // i have no idea why but if i don't set the value here it defaults to the wrong class
     selectorSelect.value = AppState.target; 
 }
 
-// the main draw function. just routes to the specific view builder. if you change the json structure this will break.
 function render() {
     if (!AppState.data) return;
     
@@ -94,7 +88,6 @@ function render() {
     else if (AppState.view === 'piket') renderPiketView(AppState.shift);
 }
 
-// broke this out into a function because the string was getting too long and i kept losing my place.
 function renderBreakCard(text, time) {
     return `<div class="break-card">${text} <span style="font-weight: normal;">(${time})</span></div>`;
 }
@@ -228,8 +221,6 @@ selectorSelect.addEventListener('change', (e) => {
     render();
 });
 
-// native tooltips look ugly. i copied this mousemove event listener from a 2014 jquery forum and translated it to vanilla JS. 
-// it flickers on touch devices but i'm too scared to fix it.
 document.addEventListener('mouseover', function(e) {
     const target = e.target.closest('td[data-code]');
     if (target) {
@@ -253,9 +244,30 @@ document.addEventListener('mouseout', function(e) {
     if (e.target.closest('td[data-code]')) tooltip.style.display = 'none';
 });
 
-// Set initial dropdown values from AppState
 shiftModeSelect.value = AppState.shift;
 viewModeSelect.value = AppState.view;
 
-// Load initial schedule
+let titleClickCount = 0;
+let titleClickTimer = null;
+document.querySelector('.header h1').addEventListener('click', () => {
+    titleClickCount++;
+    clearTimeout(titleClickTimer);
+    titleClickTimer = setTimeout(() => { titleClickCount = 0; }, 3000);
+    if (titleClickCount >= 5) {
+        titleClickCount = 0;
+        document.querySelector('.header').classList.add('title-dodge');
+        setTimeout(() => {
+            const overlay = document.createElement('div');
+            overlay.className = 'hit-overlay';
+            document.body.appendChild(overlay);
+            document.querySelector('.container').classList.add('hit-shake');
+            setTimeout(() => {
+                document.querySelector('.container').classList.remove('hit-shake');
+                overlay.remove();
+                document.querySelector('.header').classList.remove('title-dodge');
+            }, 1500);
+        }, 800);
+    }
+});
+
 loadSchedule();
