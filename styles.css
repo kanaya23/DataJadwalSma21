@@ -219,6 +219,8 @@ body.dark-theme .tooltip { background-color: #1e293b; border: 1px solid #475569;
     margin: 6px 0;
 }
 
+.schedule-cards { display: none; }
+
 @media (max-width: 768px) {
     body { padding: 10px; }
     .container { padding: 15px; }
