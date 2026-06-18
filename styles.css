@@ -1,0 +1,269 @@
+/* removed transitions on table cells because it made my laptop fan sound like a jet engine when scrolling. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg-color: #f1f5f9;
+    --container-bg: #ffffff;
+    --primary-color: #1e3a8a;
+    --header-bg: #1e3a8a;
+    --header-text: #ffffff;
+    --border-color: #94a3b8;
+    --hover-bg: #f1f5f9;
+    --break-bg: #fef08a;
+    --break-text: #854d0e;
+    --text-color: #0f172a;
+    --text-muted: #475569;
+    --control-bg: #f8fafc;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --transition-speed: 0.1s;
+}
+
+body.dark-theme {
+    --bg-color: #0f172a;
+    --container-bg: #1e293b;
+    --primary-color: #38bdf8;
+    --header-bg: #1e3a8a;
+    --header-text: #f8fafc;
+    --border-color: #475569;
+    --hover-bg: #334155;
+    --break-bg: #3f3f2e;
+    --break-text: #eab308;
+    --text-color: #f1f5f9;
+    --text-muted: #94a3b8;
+    --control-bg: #1e293b;
+}
+
+/* only transitioning the body theme. transitions on table cells cause massive lag. */
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    line-height: 1.5;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+.container {
+    max-width: 1400px;
+    margin: auto;
+    background-color: var(--container-bg);
+    padding: 25px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 25px;
+    border-bottom: 4px double var(--border-color);
+    padding-bottom: 15px;
+}
+
+.header h1 {
+    margin: 0 0 5px 0;
+    color: var(--primary-color);
+    font-size: 24px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.header p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: var(--control-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1 1 250px;
+}
+
+.control-group label {
+    font-weight: 700;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.control-group select {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
+    font-size: 13px;
+    font-family: var(--font-family);
+    background-color: var(--container-bg);
+    color: var(--text-color);
+    width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.theme-btn {
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
+    background-color: var(--container-bg);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border-color);
+    margin-top: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    table-layout: fixed;
+}
+
+caption {
+    font-size: 16px;
+    font-weight: 700;
+    padding: 8px 0;
+    caption-side: top;
+    text-align: left;
+    text-transform: uppercase;
+    border-left: 4px solid var(--primary-color);
+    padding-left: 10px;
+    margin-bottom: 10px;
+}
+
+th, td {
+    border: 1px solid var(--border-color);
+    padding: 10px 8px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+thead th {
+    background-color: var(--header-bg);
+    color: var(--header-text);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+tbody th { background-color: var(--control-bg); font-weight: 700; }
+tbody td[data-code] { font-weight: 600; }
+tbody td[data-code]:hover { background-color: var(--hover-bg); cursor: pointer; }
+
+.break-row td {
+    background-color: var(--break-bg);
+    color: var(--break-text);
+    font-weight: 700;
+    font-style: italic;
+    border-top: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.tooltip {
+    position: absolute;
+    padding: 8px 12px;
+    background-color: #0f172a;
+    color: #ffffff;
+    border: 1px solid #334155;
+    border-radius: 2px;
+    font-size: 12px;
+    z-index: 1000;
+    pointer-events: none;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+body.dark-theme .tooltip { background-color: #1e293b; border: 1px solid #475569; }
+
+.footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.footer a { color: var(--text-muted); text-decoration: underline; }
+
+/* i tried to use a css class for the break periods but i got confused with the scope */
+/* so i just made this. it works. */
+.break-card {
+    background-color: var(--break-bg);
+    color: var(--break-text);
+    font-weight: bold;
+    font-style: italic;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    padding: 8px;
+    border-radius: 2px;
+    margin: 6px 0;
+}
+
+@media (max-width: 768px) {
+    body { padding: 10px; }
+    .container { padding: 15px; }
+    
+    /* table layout fixed broke on my iphone safari so i just spammed !important until it looked okay. */
+    /* please don't ask me how this works, i'm scared to change it. */
+    table { table-layout: auto !important; }
+    th, td { padding: 6px 4px !important; font-size: 10px !important; }
+    thead th { font-size: 10px !important; }
+    
+    .class-view-table th:nth-child(1) { width: 50px !important; } 
+    .class-view-table th:nth-child(2) { width: 30px !important; } 
+    .class-view-table th:nth-child(3) { width: 75px !important; } 
+    .piket-table th:nth-child(1) { width: 80px !important; } 
+    
+    .header h1 { font-size: 16px; }
+    .controls { flex-direction: column; align-items: stretch; }
+    .control-group { flex-direction: column; align-items: stretch; }
+    
+    /* desktop gets a table, mobile gets cards. hiding one via css media queries is easier than writing js. */
+    #schedule-container table.day-view-table { display: none; }
+    .schedule-cards { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
+    
+    .class-card {
+        background-color: var(--container-bg);
+        border: 1px solid var(--border-color);
+        padding: 12px;
+    }
+    .class-card h3 {
+        margin: 0 0 10px 0;
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 4px;
+        font-size: 14px;
+    }
+    .card-period {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 12px;
+    }
+    .card-period:last-child { border-bottom: none; }
+    .card-period-subject { font-weight: 700; text-align: right; display: flex; flex-direction: column; }
+    .card-period-teacher { font-size: 10px; color: var(--text-muted); font-weight: 400; }
+    
+    .tooltip { display: none !important; }
+}
