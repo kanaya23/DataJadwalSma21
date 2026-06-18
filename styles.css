@@ -237,8 +237,8 @@ body.dark-theme .tooltip { background-color: #1e293b; border: 1px solid #475569;
     .piket-table th:nth-child(1) { width: 80px !important; } 
     
     .header h1 { font-size: 16px; }
-    .controls { flex-direction: column; align-items: stretch; }
-    .control-group { flex-direction: column; align-items: stretch; }
+    .controls { flex-direction: column; align-items: stretch; gap: 8px; padding: 10px; }
+    .control-group { flex-direction: column; align-items: stretch; gap: 2px; }
     
     /* desktop gets a table, mobile gets cards. hiding one via css media queries is easier than writing js. */
     #schedule-container table.day-view-table { display: none; }
