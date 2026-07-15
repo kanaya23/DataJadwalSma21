@@ -1,8 +1,8 @@
 console.log("%cMy favourite movie is SCARFACE", "color: #e67e22; font-weight: bold;");
 
 const AppState = {
-    shift: 'siang',
-    view: 'day',
+    shift: localStorage.getItem('shift') || 'siang',
+    view: localStorage.getItem('view') || 'day',
     target: 'Senin',
     theme: localStorage.getItem('theme') || 'light',
     data: null
@@ -75,13 +75,15 @@ function populateSelector() {
         selectorGroup.style.display = 'none';
     }
 
-    selectorSelect.value = AppState.target; 
+    if (selectorSelect.querySelector(`option[value="${AppState.target}"]`)) {
+        selectorSelect.value = AppState.target;
+    }
 }
 
 function render() {
     if (!AppState.data) return;
     
-    headerSubtitle.textContent = `JADWAL PELAJARAN SEMESTER GANJIL 2025 / 2026 (SHIFT ${AppState.shift.toUpperCase()})`;
+    headerSubtitle.textContent = `JADWAL PELAJARAN SEMESTER GANJIL 2026 / 2027 (SHIFT ${AppState.shift.toUpperCase()})`;
     
     if (AppState.view === 'day') renderDayView(AppState.shift, AppState.target);
     else if (AppState.view === 'class') renderClassView(AppState.shift, AppState.target);
@@ -138,16 +140,17 @@ function renderDayView(shift, day) {
 
     // Mobile Cards
     let cardsHtml = `<div class="schedule-cards">`;
+    let eventRows = rows.filter(r => r.isEvent);
+    let periodRows = rows.filter(r => !r.isEvent);
+    eventRows.forEach(row => {
+        cardsHtml += renderBreakCard(row.text, row.time);
+    });
     classes.forEach(c => {
         cardsHtml += `<div class="class-card"><h3>Kelas ${c}</h3>`;
-        rows.forEach(row => {
-            if (row.isEvent) {
-                cardsHtml += renderBreakCard(row.text, row.time);
-            } else {
-                const code = row.cells[c] || '';
-                const t = AppState.data.teachers[code];
-                cardsHtml += code ? renderClassPeriodCard(row, code, t) : `<div class="card-period"><span class="card-period-time" style="color: var(--text-muted);">Jam ${row.period} (${row.time})</span><span class="card-period-subject" style="color: var(--text-muted); font-style: italic;">Tidak Ada Kelas</span></div>`;
-            }
+        periodRows.forEach(row => {
+            const code = row.cells[c] || '';
+            const t = AppState.data.teachers[code];
+            cardsHtml += code ? renderClassPeriodCard(row, code, t) : `<div class="card-period"><span class="card-period-time" style="color: var(--text-muted);">Jam ${row.period} (${row.time})</span><span class="card-period-subject" style="color: var(--text-muted); font-style: italic;">Tidak Ada Kelas</span></div>`;
         });
         cardsHtml += `</div>`;
     });
@@ -203,6 +206,7 @@ function renderPiketView(shift) {
 // --- EVENT LISTENERS ---
 shiftModeSelect.addEventListener('change', (e) => {
     AppState.shift = e.target.value;
+    localStorage.setItem('shift', AppState.shift);
     if (AppState.view === 'class' && AppState.data) AppState.target = AppState.data[AppState.shift].classes[0];
     populateSelector();
     render();
@@ -210,6 +214,7 @@ shiftModeSelect.addEventListener('change', (e) => {
 
 viewModeSelect.addEventListener('change', (e) => {
     AppState.view = e.target.value;
+    localStorage.setItem('view', AppState.view);
     if (AppState.view === 'day') AppState.target = 'Senin';
     else if (AppState.view === 'class' && AppState.data) AppState.target = AppState.data[AppState.shift].classes[0];
     populateSelector();
