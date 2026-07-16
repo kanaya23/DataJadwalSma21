@@ -49,7 +49,7 @@ async function loadSchedule() {
             AppState.data = await response.json();
             AppState.absences = AppState.data.absences || {};
         } catch (apiErr) {
-            response = await fetch('./schedule_data.json');
+            response = await fetch('./schedule_data.json?t=' + Date.now());
             if (!response.ok) throw new Error('Network response was not ok');
             AppState.data = await response.json();
             try {
