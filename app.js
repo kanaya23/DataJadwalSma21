@@ -492,6 +492,7 @@ function renderKehadiranView() {
             });
         });
     }
+    updateHelpButtonVisibility();
 }
 
 function renderKehadiranViewFullRebuild() {
@@ -643,6 +644,7 @@ function renderEditorLayout() {
     if (AppState.editorTab === 'teachers') renderTeacherEditor();
     else if (AppState.editorTab === 'schedule') renderScheduleEditor();
     else if (AppState.editorTab === 'piket') renderPiketEditor();
+    updateHelpButtonVisibility();
 }
 
 function renderTeacherEditor() {
@@ -1045,29 +1047,64 @@ function startTour() {
     } else if (AppState.view === 'kelola') {
         tourSteps = [
             {
-                element: '.editor-tabs',
-                title: "Menu Kelola",
-                content: "Pilih tab 'Kelola Guru' untuk menambah/mengedit data guru, 'Jadwal Kelas' untuk mengedit jam mengajar, atau 'Piket Roster' untuk petugas piket."
+                element: '.editor-tabs button[data-tab="teachers"]',
+                title: "Tab Kelola Guru",
+                content: "Di tab ini, Anda bisa mendaftarkan, mengedit, atau menghapus data guru di database."
             },
             {
-                element: '#editor-tab-content',
-                title: "Form Editor",
-                content: "Gunakan form di area ini untuk memperbarui jadwal. Di tab Jadwal Kelas, Anda cukup mengetik nama guru untuk mencari dan menginput jadwal mengajar."
+                element: '.editor-form',
+                title: "Tambah Guru Baru",
+                content: "Ketik Kode Guru (contoh: Z9), Nama Lengkap, dan Mata Pelajaran, lalu klik 'Tambah' untuk menyimpan."
+            },
+            {
+                element: '#teacher-editor-search',
+                title: "Pencarian Guru",
+                content: "Cari data guru yang terdaftar secara cepat dengan mengetik nama atau kode di sini."
+            },
+            {
+                element: '#editor-teachers-grid-container',
+                title: "Daftar Guru & Aksi",
+                content: "Klik 'Edit' untuk mengubah nama/mapel guru, atau 'Hapus' untuk menghapus guru dari daftar."
+            },
+            {
+                element: '.editor-tabs button[data-tab="schedule"]',
+                title: "Tab Jadwal Kelas",
+                content: "Mari beralih ke tab 'Jadwal Kelas' untuk mengatur jam pelajaran mengajar masing-masing kelas."
+            },
+            {
+                element: '.editor-schedule-header',
+                title: "Filter Kelas & Hari",
+                content: "Pilih Shift (Pagi/Siang), Kelas, dan Hari yang ingin Anda atur jadwalnya."
+            },
+            {
+                element: '.schedule-period-cell-input',
+                title: "Pengisian Jam Mengajar",
+                content: "Cukup ketik nama atau kode guru di kolom jam pelajaran. Datalist otomatis akan mencarikan guru. Jika kodenya salah, border akan berwarna merah."
+            },
+            {
+                element: '.editor-tabs button[data-tab="piket"]',
+                title: "Tab Roster Piket",
+                content: "Mari beralih ke tab 'Piket Roster' untuk memperbarui guru piket harian."
+            },
+            {
+                element: '.editor-piket-grid',
+                title: "Daftar Piket Harian",
+                content: "Ketikkan daftar nama petugas piket (Guru Piket, Wakasek, BK) satu nama per baris."
             },
             {
                 element: '#btn-save-all-editor',
-                title: "Simpan ke Cloud",
-                content: "Klik tombol hijau ini untuk menyimpan semua perubahan secara permanen ke server agar bisa dilihat semua orang."
+                title: "Simpan Semua Perubahan",
+                content: "PENTING! Jangan lupa klik tombol hijau ini setelah selesai mengedit agar perubahan terkirim ke Cloud dan bisa dilihat semua orang."
             },
             {
                 element: '#btn-download-json-editor',
                 title: "Unduh File Cadangan",
-                content: "Unduh data jadwal terbaru sebagai file `schedule_data.json` untuk disimpan di komputer developer sebagai cadangan."
+                content: "Klik di sini untuk mengunduh data jadwal terbaru sebagai backup. File ini bisa Anda kirimkan ke developer untuk di-push ke GitHub."
             },
             {
                 element: '#btn-exit-all-editor',
-                title: "Keluar Editor",
-                content: "Klik di sini untuk mengunci panel dan kembali ke menu jadwal sekolah utama."
+                title: "Keluar Pengelola",
+                content: "Klik tombol merah ini setelah selesai untuk menutup panel pengelola dan kembali ke halaman utama."
             }
         ];
     }
@@ -1080,6 +1117,18 @@ function showTourStep() {
     closeTour();
     if (currentTourStep >= tourSteps.length) {
         return;
+    }
+    if (AppState.view === 'kelola') {
+        if (currentTourStep >= 0 && currentTourStep <= 3 && AppState.editorTab !== 'teachers') {
+            AppState.editorTab = 'teachers';
+            renderEditorLayout();
+        } else if (currentTourStep >= 4 && currentTourStep <= 6 && AppState.editorTab !== 'schedule') {
+            AppState.editorTab = 'schedule';
+            renderEditorLayout();
+        } else if (currentTourStep >= 7 && currentTourStep <= 8 && AppState.editorTab !== 'piket') {
+            AppState.editorTab = 'piket';
+            renderEditorLayout();
+        }
     }
     const step = tourSteps[currentTourStep];
     const target = document.querySelector(step.element);
