@@ -563,6 +563,7 @@ function renderEditorLayout() {
                 <div class="editor-header-buttons">
                     <button class="btn-save-cloud" id="btn-save-all-editor">Simpan Perubahan ke Cloud</button>
                     <button class="secondary-btn" id="btn-download-json-editor" style="padding: 8px 16px; font-size: 13px; font-weight: 700; background-color: var(--primary-color); border: 1px solid var(--border-color); color: white; cursor: pointer;">Unduh JSON</button>
+                    <button class="secondary-btn" id="btn-change-password-editor" style="padding: 8px 16px; font-size: 13px; font-weight: 700; background-color: var(--border-color); border: 1px solid var(--border-color); color: var(--text-color); cursor: pointer;">Ganti Password</button>
                     <button class="btn-exit-editor" id="btn-exit-all-editor">Keluar</button>
                 </div>
             </div>
@@ -592,6 +593,39 @@ function renderEditorLayout() {
         document.body.appendChild(downloadAnchor);
         downloadAnchor.click();
         downloadAnchor.remove();
+    });
+    document.getElementById('btn-change-password-editor').addEventListener('click', async () => {
+        const current = prompt("Masukkan password saat ini:");
+        if (current) {
+            const isCurrentValid = await verifyPassword(current);
+            if (isCurrentValid) {
+                const newPass = prompt("Masukkan password baru:");
+                if (newPass) {
+                    try {
+                        const res = await fetch('/api/change-password', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ currentPassword: current, newPassword: newPass })
+                        });
+                        if (res.ok) {
+                            const newHash = await sha256(newPass);
+                            localStorage.setItem('admin_hash', newHash);
+                            AppState.password = newPass;
+                            alert("Password berhasil diubah untuk semua orang di website!");
+                        } else {
+                            const data = await res.json();
+                            alert("Gagal mengubah password di server: " + data.error);
+                        }
+                    } catch (cloudErr) {
+                        const newHash = await sha256(newPass);
+                        localStorage.setItem('admin_hash', newHash);
+                        alert(`Password diubah secara lokal di browser ini.\n\nUntuk mengubah secara permanen bagi semua orang, silakan update hash berikut di file app.js Anda:\n\n${newHash}`);
+                    }
+                }
+            } else {
+                alert("Password saat ini salah!");
+            }
+        }
     });
     document.getElementById('btn-exit-all-editor').addEventListener('click', () => {
         if (confirm("Keluar dari menu pengelola jadwal? Pastikan Anda sudah menyimpan perubahan ke cloud.")) {
