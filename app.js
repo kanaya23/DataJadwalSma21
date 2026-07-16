@@ -266,12 +266,14 @@ function renderKehadiranView() {
     
     const activeShiftTeachers = new Set();
     if (AppState.data && AppState.data[AppState.shift]) {
-        AppState.data[AppState.shift].schedule.forEach(row => {
-            if (!row.isEvent && row.cells) {
-                Object.values(row.cells).forEach(code => {
-                    if (code) activeShiftTeachers.add(code);
-                });
-            }
+        Object.values(AppState.data[AppState.shift].schedule).forEach(rows => {
+            rows.forEach(row => {
+                if (!row.isEvent && row.cells) {
+                    Object.values(row.cells).forEach(code => {
+                        if (code) activeShiftTeachers.add(code);
+                    });
+                }
+            });
         });
     }
 
