@@ -302,6 +302,42 @@ async function saveAbsencesCloud(password) {
     }
 }
 
+function exportKehadiranRecap() {
+    const teachers = AppState.data.teachers;
+    const absences = AppState.absences;
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const todayStr = new Date().toLocaleDateString('id-ID', options);
+    let csvContent = "sep=,\n";
+    csvContent += "Hari/Tanggal,Kode Guru,Nama Guru,Mata Pelajaran,Status Kehadiran,Keterangan Tambahan\n";
+    Object.entries(teachers).sort((a, b) => a[0].localeCompare(b[0])).forEach(([code, info]) => {
+        const isAbsent = absences[code];
+        let status = "Hadir";
+        let note = "";
+        if (isAbsent) {
+            if (["Sakit", "Izin", "Dinas Luar"].includes(isAbsent)) {
+                status = isAbsent;
+            } else {
+                status = "Tidak Hadir";
+                note = isAbsent;
+            }
+        }
+        const cleanName = `"${info.name.replace(/"/g, '""')}"`;
+        const cleanSubject = `"${info.subject.replace(/"/g, '""')}"`;
+        const cleanNote = `"${note.replace(/"/g, '""')}"`;
+        csvContent += `"${todayStr}",${code},${cleanName},${cleanSubject},${status},${cleanNote}\n`;
+    });
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const downloadAnchor = document.createElement('a');
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    downloadAnchor.setAttribute("href", url);
+    downloadAnchor.setAttribute("download", `Rekap_Kehadiran_${dateStamp}.csv`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    URL.revokeObjectURL(url);
+}
+
 function renderKehadiranView() {
     const teachers = AppState.data.teachers;
     const absences = AppState.absences;
@@ -339,7 +375,10 @@ function renderKehadiranView() {
                         <button id="admin-mode-toggle-btn" class="admin-mode-btn">
                             ${AppState.adminMode ? 'Selesai Mengelola' : 'Kelola Kehadiran'}
                         </button>
-                        ${AppState.adminMode ? '<button id="change-password-btn" class="admin-mode-btn" style="background-color: var(--border-color); margin-left: 10px;">Ganti Password</button>' : ''}
+                        ${AppState.adminMode ? `
+                            <button id="rekap-kehadiran-btn" class="admin-mode-btn" style="background-color: #10b981; margin-left: 10px;">Rekap Kehadiran</button>
+                            <button id="change-password-btn" class="admin-mode-btn" style="background-color: var(--border-color); margin-left: 10px;">Ganti Password</button>
+                        ` : ''}
                     </div>
                 </div>
                 <div class="kehadiran-stats">
@@ -462,6 +501,10 @@ function renderKehadiranView() {
                     }
                 }
             });
+        }
+        const rekapBtn = document.getElementById('rekap-kehadiran-btn');
+        if (rekapBtn) {
+            rekapBtn.addEventListener('click', exportKehadiranRecap);
         }
         document.querySelectorAll('.btn-hadir').forEach(btn => {
             btn.addEventListener('click', () => {
