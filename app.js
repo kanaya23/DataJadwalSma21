@@ -562,6 +562,7 @@ function renderEditorLayout() {
                 <h3 class="editor-title">PENGELOLA JADWAL & DATA GURU</h3>
                 <div class="editor-header-buttons">
                     <button class="btn-save-cloud" id="btn-save-all-editor">Simpan Perubahan ke Cloud</button>
+                    <button class="secondary-btn" id="btn-download-json-editor" style="padding: 8px 16px; font-size: 13px; font-weight: 700; background-color: var(--primary-color); border: 1px solid var(--border-color); color: white; cursor: pointer;">Unduh JSON</button>
                     <button class="btn-exit-editor" id="btn-exit-all-editor">Keluar</button>
                 </div>
             </div>
@@ -582,6 +583,15 @@ function renderEditorLayout() {
     });
     document.getElementById('btn-save-all-editor').addEventListener('click', () => {
         saveScheduleCloud();
+    });
+    document.getElementById('btn-download-json-editor').addEventListener('click', () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppState.data, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "schedule_data.json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
     });
     document.getElementById('btn-exit-all-editor').addEventListener('click', () => {
         if (confirm("Keluar dari menu pengelola jadwal? Pastikan Anda sudah menyimpan perubahan ke cloud.")) {
