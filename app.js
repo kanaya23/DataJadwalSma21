@@ -307,13 +307,69 @@ function exportKehadiranRecap() {
     const absences = AppState.absences;
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const todayStr = new Date().toLocaleDateString('id-ID', options);
-    let csvContent = "sep=,\n";
-    csvContent += "Hari/Tanggal,Kode Guru,Nama Guru,Mata Pelajaran,Status Kehadiran,Keterangan Tambahan\n";
+    let htmlContent = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+        <meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8">
+        <!--[if gte mso 9]>
+        <xml>
+        <x:ExcelWorkbook>
+        <x:ExcelWorksheets>
+        <x:ExcelWorksheet>
+        <x:Name>Rekap Kehadiran</x:Name>
+        <x:WorksheetOptions>
+        <x:DisplayGridlines/>
+        </x:WorksheetOptions>
+        </x:ExcelWorksheet>
+        </x:ExcelWorksheets>
+        </x:ExcelWorkbook>
+        </xml>
+        <![endif]-->
+        <style>
+            body { font-family: 'Arial', sans-serif; }
+            table { border-collapse: collapse; }
+            th { background-color: #1e3a8a; color: #ffffff; border: 1px solid #d1d5db; padding: 10px; font-weight: bold; font-size: 10pt; text-align: left; }
+            td { border: 1px solid #d1d5db; padding: 8px; font-size: 10pt; text-align: left; vertical-align: middle; }
+            .code-col { text-align: center; font-weight: bold; }
+            .status-hadir { color: #15803d; font-weight: bold; background-color: #d1fae5 !important; }
+            .status-absen { color: #b91c1c; font-weight: bold; background-color: #fee2e2 !important; }
+        </style>
+        </head>
+        <body>
+        <table>
+            <colgroup>
+                <col width="160"></col>
+                <col width="60"></col>
+                <col width="260"></col>
+                <col width="220"></col>
+                <col width="140"></col>
+                <col width="260"></col>
+            </colgroup>
+            <tr>
+                <td colspan="6" style="text-align: center; font-size: 16pt; font-weight: bold; color: #1e3a8a; border: none; height: 40px; vertical-align: middle;">LAPORAN HARIAN KEHADIRAN GURU</td>
+            </tr>
+            <tr>
+                <td colspan="6" style="text-align: center; font-size: 11pt; color: #4b5563; border: none; height: 30px; vertical-align: middle; padding-bottom: 20px;">Hari/Tanggal: ${todayStr}</td>
+            </tr>
+            <tr>
+                <td colspan="6" style="border: none; height: 10px;"></td>
+            </tr>
+            <tr>
+                <th>Hari/Tanggal</th>
+                <th>Kode</th>
+                <th>Nama Guru</th>
+                <th>Mata Pelajaran</th>
+                <th>Status Kehadiran</th>
+                <th>Keterangan Tambahan</th>
+            </tr>
+    `;
     Object.entries(teachers).sort((a, b) => a[0].localeCompare(b[0])).forEach(([code, info]) => {
         const isAbsent = absences[code];
         let status = "Hadir";
         let note = "";
+        let statusClass = "status-hadir";
         if (isAbsent) {
+            statusClass = "status-absen";
             if (["Sakit", "Izin", "Dinas Luar"].includes(isAbsent)) {
                 status = isAbsent;
             } else {
@@ -321,17 +377,28 @@ function exportKehadiranRecap() {
                 note = isAbsent;
             }
         }
-        const cleanName = `"${info.name.replace(/"/g, '""')}"`;
-        const cleanSubject = `"${info.subject.replace(/"/g, '""')}"`;
-        const cleanNote = `"${note.replace(/"/g, '""')}"`;
-        csvContent += `"${todayStr}",${code},${cleanName},${cleanSubject},${status},${cleanNote}\n`;
+        htmlContent += `
+            <tr>
+                <td>${todayStr}</td>
+                <td class="code-col" style="text-align: center; font-weight: bold;">${code}</td>
+                <td>${info.name}</td>
+                <td>${info.subject}</td>
+                <td class="${statusClass}">${status}</td>
+                <td>${note}</td>
+            </tr>
+        `;
     });
-    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: "text/csv;charset=utf-8;" });
+    htmlContent += `
+        </table>
+        </body>
+        </html>
+    `;
+    const blob = new Blob(['\xEF\xBB\xBF' + htmlContent], { type: 'application/vnd.ms-excel' });
     const url = URL.createObjectURL(blob);
     const downloadAnchor = document.createElement('a');
     const dateStamp = new Date().toISOString().slice(0, 10);
     downloadAnchor.setAttribute("href", url);
-    downloadAnchor.setAttribute("download", `Rekap_Kehadiran_${dateStamp}.csv`);
+    downloadAnchor.setAttribute("download", `Rekap_Kehadiran_${dateStamp}.xls`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -1169,7 +1236,7 @@ function startTour() {
             {
                 element: '#rekap-excel-btn',
                 title: "Rekap Kehadiran Excel",
-                content: "Klik tombol hijau ini untuk mengunduh rekap kehadiran seluruh guru dalam format file tabel Excel (.csv) secara instan."
+                content: "Klik tombol hijau ini untuk mengunduh rekap kehadiran seluruh guru dalam format file spreadsheet Excel (.xls) yang rapi."
             },
             {
                 element: '#rekap-word-btn',
