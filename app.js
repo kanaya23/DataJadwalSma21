@@ -3,7 +3,7 @@ console.log("%cMy favourite movie is SCARFACE", "color: #e67e22; font-weight: bo
 const AppState = {
     shift: localStorage.getItem('shift') || 'siang',
     view: localStorage.getItem('view') || 'day',
-    target: 'Senin',
+    target: localStorage.getItem('target') || 'Senin',
     theme: localStorage.getItem('theme') || 'light',
     data: null
 };
@@ -42,10 +42,16 @@ async function loadSchedule() {
         if (!response.ok) throw new Error('Network response was not ok');
         AppState.data = await response.json();
         if (AppState.view === 'day') {
-            AppState.target = 'Senin';
+            if (!['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'].includes(AppState.target)) {
+                AppState.target = 'Senin';
+            }
         } else if (AppState.view === 'class') {
-            AppState.target = AppState.data[AppState.shift].classes[0];
+            const validClasses = AppState.data[AppState.shift].classes;
+            if (!validClasses.includes(AppState.target)) {
+                AppState.target = validClasses[0];
+            }
         }
+        localStorage.setItem('target', AppState.target);
         populateSelector();
         render();
     } catch (error) {
@@ -212,7 +218,10 @@ function renderPiketView(shift) {
 shiftModeSelect.addEventListener('change', (e) => {
     AppState.shift = e.target.value;
     localStorage.setItem('shift', AppState.shift);
-    if (AppState.view === 'class' && AppState.data) AppState.target = AppState.data[AppState.shift].classes[0];
+    if (AppState.view === 'class' && AppState.data) {
+        AppState.target = AppState.data[AppState.shift].classes[0];
+        localStorage.setItem('target', AppState.target);
+    }
     populateSelector();
     render();
 });
@@ -220,14 +229,20 @@ shiftModeSelect.addEventListener('change', (e) => {
 viewModeSelect.addEventListener('change', (e) => {
     AppState.view = e.target.value;
     localStorage.setItem('view', AppState.view);
-    if (AppState.view === 'day') AppState.target = 'Senin';
-    else if (AppState.view === 'class' && AppState.data) AppState.target = AppState.data[AppState.shift].classes[0];
+    if (AppState.view === 'day') {
+        AppState.target = 'Senin';
+        localStorage.setItem('target', AppState.target);
+    } else if (AppState.view === 'class' && AppState.data) {
+        AppState.target = AppState.data[AppState.shift].classes[0];
+        localStorage.setItem('target', AppState.target);
+    }
     populateSelector();
     render();
 });
 
 selectorSelect.addEventListener('change', (e) => {
     AppState.target = e.target.value;
+    localStorage.setItem('target', AppState.target);
     render();
 });
 
