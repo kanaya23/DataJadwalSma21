@@ -263,14 +263,30 @@ async function verifyPassword(input) {
 function renderKehadiranView() {
     const teachers = AppState.data.teachers;
     const absences = AppState.absences;
-    let absentCount = Object.keys(absences).length;
-    let totalCount = Object.keys(teachers).length;
+    
+    const activeShiftTeachers = new Set();
+    if (AppState.data && AppState.data[AppState.shift]) {
+        AppState.data[AppState.shift].schedule.forEach(row => {
+            if (!row.isEvent && row.cells) {
+                Object.values(row.cells).forEach(code => {
+                    if (code) activeShiftTeachers.add(code);
+                });
+            }
+        });
+    }
+
+    let absentCount = Object.keys(absences).filter(code => AppState.adminMode || activeShiftTeachers.has(code)).length;
+    let totalCount = AppState.adminMode ? Object.keys(teachers).length : activeShiftTeachers.size;
     let presentCount = totalCount - absentCount;
+
     let filteredTeachers = Object.entries(teachers).filter(([code, info]) => {
         const query = AppState.searchQuery.toLowerCase();
-        return code.toLowerCase().includes(query) || 
-               info.name.toLowerCase().includes(query) || 
-               info.subject.toLowerCase().includes(query);
+        const matchesQuery = code.toLowerCase().includes(query) || 
+                            info.name.toLowerCase().includes(query) || 
+                            info.subject.toLowerCase().includes(query);
+        if (!matchesQuery) return false;
+        if (AppState.adminMode) return true;
+        return activeShiftTeachers.has(code);
     });
     const existingContainer = document.querySelector('.kehadiran-container');
     if (!existingContainer) {
