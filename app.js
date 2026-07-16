@@ -8,7 +8,8 @@ const AppState = {
     data: null,
     absences: {},
     adminMode: false,
-    searchQuery: ''
+    searchQuery: '',
+    password: ''
 };
 
 // DOM references
@@ -44,7 +45,16 @@ async function loadSchedule() {
         const response = await fetch('./schedule_data.json');
         if (!response.ok) throw new Error('Network response was not ok');
         AppState.data = await response.json();
-        AppState.absences = JSON.parse(localStorage.getItem('absences')) || AppState.data.absences || {};
+        try {
+            const apiRes = await fetch('/api/absences');
+            if (apiRes.ok) {
+                AppState.absences = await apiRes.json();
+            } else {
+                AppState.absences = AppState.data.absences || {};
+            }
+        } catch (apiErr) {
+            AppState.absences = JSON.parse(localStorage.getItem('absences')) || AppState.data.absences || {};
+        }
         if (AppState.view === 'day') {
             if (!['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'].includes(AppState.target)) {
                 AppState.target = 'Senin';
@@ -260,10 +270,27 @@ async function verifyPassword(input) {
            hashed === '48ba0dd0a682b64f73f95059971d7e9d21a58faf804aaa265ce730f9b63c4988';
 }
 
+async function saveAbsencesCloud(password) {
+    try {
+        const res = await fetch('/api/absences', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ absences: AppState.absences, password })
+        });
+        if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || 'Failed to save');
+        }
+        return true;
+    } catch (err) {
+        console.error("Cloud save failed", err);
+        return false;
+    }
+}
+
 function renderKehadiranView() {
     const teachers = AppState.data.teachers;
     const absences = AppState.absences;
-    
     const activeShiftTeachers = new Set();
     if (AppState.data && AppState.data[AppState.shift]) {
         Object.values(AppState.data[AppState.shift].schedule).forEach(rows => {
@@ -276,11 +303,9 @@ function renderKehadiranView() {
             });
         });
     }
-
     let absentCount = Object.keys(absences).filter(code => AppState.adminMode || activeShiftTeachers.has(code)).length;
     let totalCount = AppState.adminMode ? Object.keys(teachers).length : activeShiftTeachers.size;
     let presentCount = totalCount - absentCount;
-
     let filteredTeachers = Object.entries(teachers).filter(([code, info]) => {
         const query = AppState.searchQuery.toLowerCase();
         const matchesQuery = code.toLowerCase().includes(query) || 
@@ -330,6 +355,7 @@ function renderKehadiranView() {
         adminModeBtn.addEventListener('click', async () => {
             if (AppState.adminMode) {
                 AppState.adminMode = false;
+                AppState.password = '';
                 renderKehadiranViewFullRebuild();
             } else {
                 const password = prompt("Masukkan password untuk Kelola Kehadiran:");
@@ -337,6 +363,7 @@ function renderKehadiranView() {
                     const isValid = await verifyPassword(password);
                     if (isValid) {
                         AppState.adminMode = true;
+                        AppState.password = password;
                         renderKehadiranViewFullRebuild();
                     } else {
                         alert("Password salah!");
@@ -395,9 +422,26 @@ function renderKehadiranView() {
                     if (isCurrentValid) {
                         const newPass = prompt("Masukkan password baru:");
                         if (newPass) {
-                            const newHash = await sha256(newPass);
-                            localStorage.setItem('admin_hash', newHash);
-                            alert(`Password berhasil diubah di browser ini!\n\nUntuk mengubahnya bagi semua pengguna, silakan salin hash berikut dan gantikan di file app.js Anda:\n\n${newHash}`);
+                            try {
+                                const res = await fetch('/api/change-password', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ currentPassword: current, newPassword: newPass })
+                                });
+                                if (res.ok) {
+                                    const newHash = await sha256(newPass);
+                                    localStorage.setItem('admin_hash', newHash);
+                                    AppState.password = newPass;
+                                    alert("Password berhasil diubah untuk semua orang di website!");
+                                } else {
+                                    const data = await res.json();
+                                    alert("Gagal mengubah password di server: " + data.error);
+                                }
+                            } catch (cloudErr) {
+                                const newHash = await sha256(newPass);
+                                localStorage.setItem('admin_hash', newHash);
+                                alert(`Password diubah secara lokal di browser ini.\n\nUntuk mengubah secara permanen bagi semua orang, silakan update hash berikut di file app.js Anda:\n\n${newHash}`);
+                            }
                         }
                     } else {
                         alert("Password saat ini salah!");
@@ -410,6 +454,7 @@ function renderKehadiranView() {
                 const code = btn.getAttribute('data-code');
                 delete AppState.absences[code];
                 localStorage.setItem('absences', JSON.stringify(AppState.absences));
+                if (AppState.password) saveAbsencesCloud(AppState.password);
                 renderKehadiranView();
             });
         });
@@ -419,6 +464,7 @@ function renderKehadiranView() {
                 const reason = btn.getAttribute('data-reason');
                 AppState.absences[code] = reason;
                 localStorage.setItem('absences', JSON.stringify(AppState.absences));
+                if (AppState.password) saveAbsencesCloud(AppState.password);
                 renderKehadiranView();
             });
         });
@@ -429,6 +475,7 @@ function renderKehadiranView() {
                 if (reason && reason.trim()) {
                     AppState.absences[code] = reason.trim();
                     localStorage.setItem('absences', JSON.stringify(AppState.absences));
+                    if (AppState.password) saveAbsencesCloud(AppState.password);
                     renderKehadiranView();
                 }
             });
