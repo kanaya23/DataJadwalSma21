@@ -423,14 +423,22 @@ function exportKehadiranWord() {
             td { border: 1px solid #d1d5db; padding: 8px; text-align: left; font-size: 10pt; }
             .no-col { width: 40px; text-align: center; }
             .code-col { width: 60px; text-align: center; font-weight: bold; }
-            .status-hadir { color: #15803d; font-weight: bold; }
-            .status-absen { color: #b91c1c; font-weight: bold; }
+            .status-hadir { color: #15803d; font-weight: bold; background-color: #d1fae5; }
+            .status-absen { color: #b91c1c; font-weight: bold; background-color: #fee2e2; }
         </style>
         </head>
         <body>
         <h2>LAPORAN HARIAN KEHADIRAN GURU</h2>
         <h4>Hari/Tanggal: ${todayStr}</h4>
         <table>
+            <colgroup>
+                <col width="40"></col>
+                <col width="60"></col>
+                <col width="250"></col>
+                <col width="220"></col>
+                <col width="140"></col>
+                <col width="250"></col>
+            </colgroup>
             <thead>
                 <tr>
                     <th class="no-col">No</th>
