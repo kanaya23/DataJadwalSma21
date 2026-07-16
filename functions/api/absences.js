@@ -1,7 +1,10 @@
 export async function onRequestGet(context) {
     const value = await context.env.ABSENCES_KV.get("absences");
     return new Response(value || "{}", {
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
+        }
     });
 }
 

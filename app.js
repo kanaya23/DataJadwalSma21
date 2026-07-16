@@ -42,18 +42,26 @@ themeToggleBtn.addEventListener('click', () => {
 // --- DATA FETCHING ---
 async function loadSchedule() {
     try {
-        const response = await fetch('./schedule_data.json');
-        if (!response.ok) throw new Error('Network response was not ok');
-        AppState.data = await response.json();
+        let response;
         try {
-            const apiRes = await fetch('/api/absences');
-            if (apiRes.ok) {
-                AppState.absences = await apiRes.json();
-            } else {
-                AppState.absences = AppState.data.absences || {};
-            }
+            response = await fetch('/api/schedule?t=' + Date.now());
+            if (!response.ok) throw new Error();
+            AppState.data = await response.json();
+            AppState.absences = AppState.data.absences || {};
         } catch (apiErr) {
-            AppState.absences = JSON.parse(localStorage.getItem('absences')) || AppState.data.absences || {};
+            response = await fetch('./schedule_data.json');
+            if (!response.ok) throw new Error('Network response was not ok');
+            AppState.data = await response.json();
+            try {
+                const apiRes = await fetch('/api/absences?t=' + Date.now());
+                if (apiRes.ok) {
+                    AppState.absences = await apiRes.json();
+                } else {
+                    AppState.absences = AppState.data.absences || {};
+                }
+            } catch (absencesErr) {
+                AppState.absences = JSON.parse(localStorage.getItem('absences')) || AppState.data.absences || {};
+            }
         }
         if (AppState.view === 'day') {
             if (!['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'].includes(AppState.target)) {

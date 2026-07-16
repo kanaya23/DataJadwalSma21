@@ -8,7 +8,10 @@ export async function onRequestGet(context) {
         if (!kvVal) {
             await context.env.ABSENCES_KV.put("schedule_data", JSON.stringify(defaultData));
             return new Response(JSON.stringify(defaultData), {
-                headers: { "Content-Type": "application/json" }
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
+                }
             });
         }
         const kvData = JSON.parse(kvVal);
@@ -19,7 +22,10 @@ export async function onRequestGet(context) {
             }
             await context.env.ABSENCES_KV.put("schedule_data", JSON.stringify(defaultData));
             return new Response(JSON.stringify(defaultData), {
-                headers: { "Content-Type": "application/json" }
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
+                }
             });
         }
         const savedAbsences = await context.env.ABSENCES_KV.get("absences");
@@ -27,12 +33,18 @@ export async function onRequestGet(context) {
             kvData.absences = JSON.parse(savedAbsences);
         }
         return new Response(JSON.stringify(kvData), {
-            headers: { "Content-Type": "application/json" }
+            headers: { 
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
+            }
         });
     } catch (err) {
         return new Response(JSON.stringify({ error: err.message }), {
             status: 500,
-            headers: { "Content-Type": "application/json" }
+            headers: { 
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0"
+            }
         });
     }
 }
