@@ -398,7 +398,7 @@ function exportKehadiranRecap() {
     const downloadAnchor = document.createElement('a');
     const dateStamp = new Date().toISOString().slice(0, 10);
     downloadAnchor.setAttribute("href", url);
-    downloadAnchor.setAttribute("download", `Rekap_Kehadiran_${dateStamp}.xls`);
+    downloadAnchor.setAttribute("download", `Rekap_Kehadiran_${dateStamp}.xlsx`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -1244,7 +1244,7 @@ function startTour() {
             {
                 element: '#rekap-excel-btn',
                 title: "Rekap Kehadiran Excel",
-                content: "Klik tombol hijau ini untuk mengunduh rekap kehadiran seluruh guru dalam format file spreadsheet Excel (.xls) yang rapi."
+                content: "Klik tombol hijau ini untuk mengunduh rekap kehadiran seluruh guru dalam format file spreadsheet Excel (.xlsx) yang rapi."
             },
             {
                 element: '#rekap-word-btn',
