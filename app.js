@@ -123,6 +123,8 @@ function render() {
     else if (AppState.view === 'piket') renderPiketView(AppState.shift);
     else if (AppState.view === 'kehadiran') renderKehadiranView();
     else if (AppState.view === 'kelola') renderKelolaView();
+    
+    updateHelpButtonVisibility();
 }
 
 function renderBreakCard(text, time) {
@@ -1006,5 +1008,151 @@ document.querySelector('.header h1').addEventListener('click', () => {
         }, 800);
     }
 });
+
+let currentTourStep = 0;
+let tourSteps = [];
+
+function startTour() {
+    tourSteps = [];
+    if (AppState.view === 'kehadiran' && AppState.adminMode) {
+        tourSteps = [
+            {
+                element: '#kehadiran-search-input',
+                title: "Cari Nama Guru",
+                content: "Ketik kode, nama, atau mata pelajaran guru di sini untuk memfilter daftar secara instan."
+            },
+            {
+                element: '.kehadiran-stats',
+                title: "Statistik Kehadiran",
+                content: "Pantau ringkasan jumlah guru yang Hadir, Sakit, Izin, atau Dinas Luar hari ini."
+            },
+            {
+                element: '.admin-actions',
+                title: "Ubah Status Kehadiran",
+                content: "Tandai status guru secara cepat dengan tombol ini. Klik 'Lainnya...' untuk mengetik alasan kustom."
+            },
+            {
+                element: '#change-password-btn',
+                title: "Ganti Password Admin",
+                content: "Klik di sini untuk memperbarui password pengelola website-wide secara aman."
+            },
+            {
+                element: '#admin-mode-toggle-btn',
+                title: "Keluar Mode Pengelola",
+                content: "Setelah selesai mencatat kehadiran, klik di sini untuk mengunci panel kembali."
+            }
+        ];
+    } else if (AppState.view === 'kelola') {
+        tourSteps = [
+            {
+                element: '.editor-tabs',
+                title: "Menu Kelola",
+                content: "Pilih tab 'Kelola Guru' untuk menambah/mengedit data guru, 'Jadwal Kelas' untuk mengedit jam mengajar, atau 'Piket Roster' untuk petugas piket."
+            },
+            {
+                element: '#editor-tab-content',
+                title: "Form Editor",
+                content: "Gunakan form di area ini untuk memperbarui jadwal. Di tab Jadwal Kelas, Anda cukup mengetik nama guru untuk mencari dan menginput jadwal mengajar."
+            },
+            {
+                element: '#btn-save-all-editor',
+                title: "Simpan ke Cloud",
+                content: "Klik tombol hijau ini untuk menyimpan semua perubahan secara permanen ke server agar bisa dilihat semua orang."
+            },
+            {
+                element: '#btn-download-json-editor',
+                title: "Unduh File Cadangan",
+                content: "Unduh data jadwal terbaru sebagai file `schedule_data.json` untuk disimpan di komputer developer sebagai cadangan."
+            },
+            {
+                element: '#btn-exit-all-editor',
+                title: "Keluar Editor",
+                content: "Klik di sini untuk mengunci panel dan kembali ke menu jadwal sekolah utama."
+            }
+        ];
+    }
+    if (tourSteps.length === 0) return;
+    currentTourStep = 0;
+    showTourStep();
+}
+
+function showTourStep() {
+    closeTour();
+    if (currentTourStep >= tourSteps.length) {
+        return;
+    }
+    const step = tourSteps[currentTourStep];
+    const target = document.querySelector(step.element);
+    const popover = document.createElement('div');
+    popover.className = 'tour-popover';
+    popover.innerHTML = `
+        <h4 class="tour-popover-title">${step.title}</h4>
+        <div class="tour-popover-content">${step.content}</div>
+        <div class="tour-popover-footer">
+            <span class="tour-popover-progress">Langkah ${currentTourStep + 1} dari ${tourSteps.length}</span>
+            <div class="tour-popover-buttons">
+                <button class="tour-btn-close" id="tour-btn-close">Tutup</button>
+                <button class="tour-btn-next" id="tour-btn-next">${currentTourStep === tourSteps.length - 1 ? 'Selesai' : 'Lanjut'}</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(popover);
+    if (target) {
+        target.classList.add('tour-highlight');
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+            const rect = target.getBoundingClientRect();
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+            let top = rect.bottom + scrollTop + 10;
+            let left = rect.left + scrollLeft + (rect.width / 2) - 140;
+            if (rect.bottom + 180 > window.innerHeight) {
+                top = rect.top + scrollTop - 160;
+            }
+            if (left < 10) left = 10;
+            if (left + 280 > window.innerWidth - 10) {
+                left = window.innerWidth - 290;
+            }
+            popover.style.top = top + 'px';
+            popover.style.left = left + 'px';
+        }, 100);
+    } else {
+        popover.style.position = 'fixed';
+        popover.style.top = '50%';
+        popover.style.left = '50%';
+        popover.style.transform = 'translate(-50%, -50%)';
+    }
+    document.getElementById('tour-btn-close').addEventListener('click', closeTour);
+    document.getElementById('tour-btn-next').addEventListener('click', () => {
+        currentTourStep++;
+        if (currentTourStep < tourSteps.length) {
+            showTourStep();
+        } else {
+            closeTour();
+        }
+    });
+}
+
+function closeTour() {
+    const existing = document.querySelector('.tour-popover');
+    if (existing) existing.remove();
+    document.querySelectorAll('.tour-highlight').forEach(el => {
+        el.classList.remove('tour-highlight');
+    });
+}
+
+function updateHelpButtonVisibility() {
+    let helpBtn = document.getElementById('floating-help-btn');
+    if (!helpBtn) {
+        helpBtn = document.createElement('button');
+        helpBtn.id = 'floating-help-btn';
+        helpBtn.className = 'floating-help-btn';
+        helpBtn.innerHTML = '?';
+        document.body.appendChild(helpBtn);
+        helpBtn.addEventListener('click', startTour);
+    }
+    const isVisible = (AppState.view === 'kelola') || (AppState.view === 'kehadiran' && AppState.adminMode);
+    helpBtn.style.display = isVisible ? 'flex' : 'none';
+}
 
 loadSchedule();
