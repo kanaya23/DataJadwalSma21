@@ -606,19 +606,22 @@ function renderTeacherEditor() {
     const editingInfo = editingCode ? teachers[editingCode] : null;
     let html = `
         <div class="editor-form">
-            <h4 style="margin:0 0 10px 0; font-size:14px; font-weight:700;">${editingCode ? `Edit Guru (${editingCode})` : 'Tambah Guru Baru'}</h4>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h4 style="margin:0; font-size:14px; font-weight:700;">${editingCode ? `Edit Guru (${editingCode})` : 'Tambah Guru Baru'}</h4>
+                ${!editingCode ? '<button id="btn-fill-example-teacher" class="secondary-btn" style="padding:2px 8px; font-size:11px;">Isi Contoh</button>' : ''}
+            </div>
             <div class="editor-form-row">
                 <div class="editor-field" style="max-width: 100px;">
                     <label>Kode Guru</label>
-                    <input type="text" id="teacher-form-code" maxlength="3" placeholder="Misal: A1" value="${editingCode || ''}" ${editingCode ? 'disabled' : ''}>
+                    <input type="text" id="teacher-form-code" maxlength="3" placeholder="Contoh: Z9" value="${editingCode || ''}" ${editingCode ? 'disabled' : ''}>
                 </div>
                 <div class="editor-field">
                     <label>Nama Lengkap & Gelar</label>
-                    <input type="text" id="teacher-form-name" placeholder="Nama Guru" value="${editingInfo ? editingInfo.name : ''}">
+                    <input type="text" id="teacher-form-name" placeholder="Contoh: Drs. H. Ahmad Fauzi, M.Pd." value="${editingInfo ? editingInfo.name : ''}">
                 </div>
                 <div class="editor-field">
                     <label>Mata Pelajaran Utama</label>
-                    <input type="text" id="teacher-form-subject" placeholder="Mata Pelajaran" value="${editingInfo ? editingInfo.subject : ''}">
+                    <input type="text" id="teacher-form-subject" placeholder="Contoh: Matematika Peminatan" value="${editingInfo ? editingInfo.subject : ''}">
                 </div>
                 <button class="editor-btn-action" id="btn-save-teacher-form" style="margin-top: 10px;">${editingCode ? 'Simpan' : 'Tambah'}</button>
                 ${editingCode ? '<button class="editor-btn-action" id="btn-cancel-teacher-form" style="margin-top: 10px; background-color: var(--border-color);">Batal</button>' : ''}
@@ -630,6 +633,13 @@ function renderTeacherEditor() {
         <div class="editor-teachers-grid" id="editor-teachers-grid-container"></div>
     `;
     contentBox.innerHTML = html;
+    if (!editingCode) {
+        document.getElementById('btn-fill-example-teacher').addEventListener('click', () => {
+            document.getElementById('teacher-form-code').value = 'Z9';
+            document.getElementById('teacher-form-name').value = 'Drs. H. Ahmad Fauzi, M.Pd.';
+            document.getElementById('teacher-form-subject').value = 'Matematika Peminatan';
+        });
+    }
     const updateGrid = () => {
         const query = document.getElementById('teacher-editor-search').value.toLowerCase();
         const grid = document.getElementById('editor-teachers-grid-container');
@@ -730,6 +740,11 @@ function renderScheduleEditor() {
                 </select>
             </div>
         </div>
+        <datalist id="teachers-datalist">
+            ${teachersList.map(([code, info]) => `
+                <option value="${code}">${code} - ${info.name} (${info.subject})</option>
+            `).join('')}
+        </datalist>
         <div class="editor-schedule-rows">
     `;
     periodRows.forEach((row, rowIndex) => {
@@ -745,21 +760,25 @@ function renderScheduleEditor() {
             `;
         } else {
             const currentCode = row.cells[className] || '';
+            const tInfo = AppState.data.teachers[currentCode];
+            const helpText = tInfo ? `${tInfo.name} (${tInfo.subject})` : 'Kosong';
             html += `
                 <div class="editor-period-row">
                     <div class="editor-period-info">
                         <div class="editor-period-num">${row.period}</div>
                         <div class="editor-period-time">Jam ${row.period} (${row.time})</div>
                     </div>
-                    <div class="editor-period-select-field">
-                        <select class="schedule-period-cell-select" data-row-idx="${rowIndex}">
-                            <option value="">- Kosong / Tidak Ada Kelas -</option>
-                            ${teachersList.map(([code, info]) => `
-                                <option value="${code}" ${currentCode === code ? 'selected' : ''}>
-                                    ${code} - ${info.name} (${info.subject})
-                                </option>
-                            `).join('')}
-                        </select>
+                    <div class="editor-period-select-field" style="display:flex; flex-direction:column; gap:4px;">
+                        <input type="text" 
+                               class="schedule-period-cell-input" 
+                               list="teachers-datalist" 
+                               data-row-idx="${rowIndex}" 
+                               value="${currentCode}" 
+                               placeholder="Ketik kode/nama..."
+                               style="width:100%; box-sizing:border-box; padding:6px 10px; font-size:13px; border:1px solid var(--border-color); border-radius:4px; background:var(--container-bg); color:var(--text-color);">
+                        <div class="teacher-preview-name" id="teacher-preview-${rowIndex}" style="font-size:11px; color:var(--text-muted); font-weight:600;">
+                            ${helpText}
+                        </div>
                     </div>
                 </div>
             `;
@@ -780,19 +799,32 @@ function renderScheduleEditor() {
         AppState.editorDay = e.target.value;
         renderScheduleEditor();
     });
-    document.querySelectorAll('.schedule-period-cell-select').forEach(select => {
-        select.addEventListener('change', (e) => {
+    document.querySelectorAll('.schedule-period-cell-input').forEach(input => {
+        const handleUpdate = (e) => {
             const rowIdx = parseInt(e.target.getAttribute('data-row-idx'));
-            const selectedCode = e.target.value;
+            const previewEl = document.getElementById(`teacher-preview-${rowIdx}`);
+            let val = e.target.value.trim().toUpperCase();
             if (!periodRows[rowIdx].cells) {
                 periodRows[rowIdx].cells = {};
             }
-            if (selectedCode) {
-                periodRows[rowIdx].cells[className] = selectedCode;
-            } else {
+            if (val && AppState.data.teachers[val]) {
+                periodRows[rowIdx].cells[className] = val;
+                e.target.style.borderColor = '';
+                previewEl.textContent = `${AppState.data.teachers[val].name} (${AppState.data.teachers[val].subject})`;
+                previewEl.style.color = 'var(--text-muted)';
+            } else if (!val) {
                 delete periodRows[rowIdx].cells[className];
+                e.target.style.borderColor = '';
+                previewEl.textContent = 'Kosong';
+                previewEl.style.color = 'var(--text-muted)';
+            } else {
+                e.target.style.borderColor = '#ef4444';
+                previewEl.textContent = 'Kode guru tidak valid!';
+                previewEl.style.color = '#ef4444';
             }
-        });
+        };
+        input.addEventListener('input', handleUpdate);
+        input.addEventListener('change', handleUpdate);
     });
 }
 
