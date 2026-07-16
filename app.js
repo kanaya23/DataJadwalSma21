@@ -413,7 +413,7 @@ function exportKehadiranWord() {
     const downloadAnchor = document.createElement('a');
     const dateStamp = new Date().toISOString().slice(0, 10);
     downloadAnchor.setAttribute("href", url);
-    downloadAnchor.setAttribute("download", `Rekap_Kehadiran_${dateStamp}.doc`);
+    downloadAnchor.setAttribute("download", `Rekap_Kehadiran_${dateStamp}.docx`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -1174,7 +1174,7 @@ function startTour() {
             {
                 element: '#rekap-word-btn',
                 title: "Rekap Kehadiran Word",
-                content: "Klik tombol biru ini untuk mengunduh dokumen laporan cetak rekap kehadiran guru dalam format Word (.doc) yang rapi."
+                content: "Klik tombol biru ini untuk mengunduh dokumen laporan cetak rekap kehadiran guru dalam format Word (.docx) yang rapi."
             },
             {
                 element: '#change-password-btn',
