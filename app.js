@@ -114,6 +114,7 @@ function render() {
     else if (AppState.view === 'class') renderClassView(AppState.shift, AppState.target);
     else if (AppState.view === 'piket') renderPiketView(AppState.shift);
     else if (AppState.view === 'kehadiran') renderKehadiranView();
+    else if (AppState.view === 'kelola') renderKelolaView();
 }
 
 function renderBreakCard(text, time) {
