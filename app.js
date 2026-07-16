@@ -41,6 +41,11 @@ async function loadSchedule() {
         const response = await fetch('./schedule_data.json');
         if (!response.ok) throw new Error('Network response was not ok');
         AppState.data = await response.json();
+        if (AppState.view === 'day') {
+            AppState.target = 'Senin';
+        } else if (AppState.view === 'class') {
+            AppState.target = AppState.data[AppState.shift].classes[0];
+        }
         populateSelector();
         render();
     } catch (error) {
