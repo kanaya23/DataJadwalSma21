@@ -1,7 +1,7 @@
 export async function onRequestGet(context) {
     try {
         const url = new URL(context.request.url);
-        const defaultRes = await fetch(`${url.origin}/schedule_data.json`);
+        const defaultRes = await fetch(`${url.origin}/schedule_data.json?t=${Date.now()}`);
         if (!defaultRes.ok) throw new Error("Failed to fetch default schedule data JSON");
         const defaultData = await defaultRes.json();
         const kvVal = await context.env.ABSENCES_KV.get("schedule_data");
