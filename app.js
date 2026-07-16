@@ -338,6 +338,88 @@ function exportKehadiranRecap() {
     URL.revokeObjectURL(url);
 }
 
+function exportKehadiranWord() {
+    const teachers = AppState.data.teachers;
+    const absences = AppState.absences;
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const todayStr = new Date().toLocaleDateString('id-ID', options);
+    let htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+        <title>Rekap Kehadiran Guru</title>
+        <style>
+            body { font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.3; color: #333; }
+            h2 { text-align: center; color: #1e3a8a; margin-bottom: 5px; font-size: 16pt; font-weight: bold; }
+            h4 { text-align: center; color: #4b5563; margin-top: 0; font-weight: normal; margin-bottom: 25px; font-size: 12pt; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th { background-color: #1e3a8a; color: white; border: 1px solid #d1d5db; padding: 8px; font-weight: bold; text-align: left; font-size: 10pt; }
+            td { border: 1px solid #d1d5db; padding: 8px; text-align: left; font-size: 10pt; }
+            .no-col { width: 40px; text-align: center; }
+            .code-col { width: 60px; text-align: center; font-weight: bold; }
+            .status-hadir { color: #15803d; font-weight: bold; }
+            .status-absen { color: #b91c1c; font-weight: bold; }
+        </style>
+        </head>
+        <body>
+        <h2>LAPORAN HARIAN KEHADIRAN GURU</h2>
+        <h4>Hari/Tanggal: ${todayStr}</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th class="no-col">No</th>
+                    <th class="code-col">Kode</th>
+                    <th>Nama Guru</th>
+                    <th>Mata Pelajaran</th>
+                    <th>Status Kehadiran</th>
+                    <th>Keterangan Tambahan</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    let index = 1;
+    Object.entries(teachers).sort((a, b) => a[0].localeCompare(b[0])).forEach(([code, info]) => {
+        const isAbsent = absences[code];
+        let status = "Hadir";
+        let note = "";
+        let statusClass = "status-hadir";
+        if (isAbsent) {
+            statusClass = "status-absen";
+            if (["Sakit", "Izin", "Dinas Luar"].includes(isAbsent)) {
+                status = isAbsent;
+            } else {
+                status = "Tidak Hadir";
+                note = isAbsent;
+            }
+        }
+        htmlContent += `
+            <tr>
+                <td class="no-col">${index++}</td>
+                <td class="code-col">${code}</td>
+                <td>${info.name}</td>
+                <td>${info.subject}</td>
+                <td class="${statusClass}">${status}</td>
+                <td>${note}</td>
+            </tr>
+        `;
+    });
+    htmlContent += `
+            </tbody>
+        </table>
+        </body>
+        </html>
+    `;
+    const blob = new Blob(['\xEF\xBB\xBF' + htmlContent], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const downloadAnchor = document.createElement('a');
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    downloadAnchor.setAttribute("href", url);
+    downloadAnchor.setAttribute("download", `Rekap_Kehadiran_${dateStamp}.doc`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    URL.revokeObjectURL(url);
+}
+
 function renderKehadiranView() {
     const teachers = AppState.data.teachers;
     const absences = AppState.absences;
@@ -376,7 +458,8 @@ function renderKehadiranView() {
                             ${AppState.adminMode ? 'Selesai Mengelola' : 'Kelola Kehadiran'}
                         </button>
                         ${AppState.adminMode ? `
-                            <button id="rekap-kehadiran-btn" class="admin-mode-btn" style="background-color: #10b981; margin-left: 10px;">Rekap Kehadiran</button>
+                            <button id="rekap-excel-btn" class="admin-mode-btn" style="background-color: #10b981; margin-left: 10px;">Rekap Excel</button>
+                            <button id="rekap-word-btn" class="admin-mode-btn" style="background-color: #3b82f6; margin-left: 10px;">Rekap Word</button>
                             <button id="change-password-btn" class="admin-mode-btn" style="background-color: var(--border-color); margin-left: 10px;">Ganti Password</button>
                         ` : ''}
                     </div>
@@ -502,9 +585,13 @@ function renderKehadiranView() {
                 }
             });
         }
-        const rekapBtn = document.getElementById('rekap-kehadiran-btn');
-        if (rekapBtn) {
-            rekapBtn.addEventListener('click', exportKehadiranRecap);
+        const rekapExcelBtn = document.getElementById('rekap-excel-btn');
+        if (rekapExcelBtn) {
+            rekapExcelBtn.addEventListener('click', exportKehadiranRecap);
+        }
+        const rekapWordBtn = document.getElementById('rekap-word-btn');
+        if (rekapWordBtn) {
+            rekapWordBtn.addEventListener('click', exportKehadiranWord);
         }
         document.querySelectorAll('.btn-hadir').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1078,6 +1165,16 @@ function startTour() {
                 element: '.admin-actions',
                 title: "Ubah Status Kehadiran",
                 content: "Tandai status guru secara cepat dengan tombol ini. Klik 'Lainnya...' untuk mengetik alasan kustom."
+            },
+            {
+                element: '#rekap-excel-btn',
+                title: "Rekap Kehadiran Excel",
+                content: "Klik tombol hijau ini untuk mengunduh rekap kehadiran seluruh guru dalam format file tabel Excel (.csv) secara instan."
+            },
+            {
+                element: '#rekap-word-btn',
+                title: "Rekap Kehadiran Word",
+                content: "Klik tombol biru ini untuk mengunduh dokumen laporan cetak rekap kehadiran guru dalam format Word (.doc) yang rapi."
             },
             {
                 element: '#change-password-btn',
