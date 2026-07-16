@@ -606,10 +606,7 @@ function renderTeacherEditor() {
     const editingInfo = editingCode ? teachers[editingCode] : null;
     let html = `
         <div class="editor-form">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h4 style="margin:0; font-size:14px; font-weight:700;">${editingCode ? `Edit Guru (${editingCode})` : 'Tambah Guru Baru'}</h4>
-                ${!editingCode ? '<button id="btn-fill-example-teacher" class="secondary-btn" style="padding:2px 8px; font-size:11px;">Isi Contoh</button>' : ''}
-            </div>
+            <h4 style="margin:0 0 10px 0; font-size:14px; font-weight:700;">${editingCode ? `Edit Guru (${editingCode})` : 'Tambah Guru Baru'}</h4>
             <div class="editor-form-row">
                 <div class="editor-field" style="max-width: 100px;">
                     <label>Kode Guru</label>
@@ -633,13 +630,6 @@ function renderTeacherEditor() {
         <div class="editor-teachers-grid" id="editor-teachers-grid-container"></div>
     `;
     contentBox.innerHTML = html;
-    if (!editingCode) {
-        document.getElementById('btn-fill-example-teacher').addEventListener('click', () => {
-            document.getElementById('teacher-form-code').value = 'Z9';
-            document.getElementById('teacher-form-name').value = 'Drs. H. Ahmad Fauzi, M.Pd.';
-            document.getElementById('teacher-form-subject').value = 'Matematika Peminatan';
-        });
-    }
     const updateGrid = () => {
         const query = document.getElementById('teacher-editor-search').value.toLowerCase();
         const grid = document.getElementById('editor-teachers-grid-container');
