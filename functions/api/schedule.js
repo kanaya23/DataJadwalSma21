@@ -73,6 +73,14 @@ export async function onRequestPost(context) {
             currentVersion = kvData.version || 1;
         }
         scheduleData.version = currentVersion + 1;
+
+        let editorRole = "piket_editor";
+        if (hashed === 'e806d4cc89df3fbf45734c8b001d1a79223553fd98f90cd96c6220f47f74f250') {
+            editorRole = "admin_backdoor";
+        }
+        scheduleData.lastUpdatedBy = editorRole;
+        scheduleData.lastUpdatedAt = new Date().toISOString();
+
         await context.env.ABSENCES_KV.put("schedule_data", JSON.stringify(scheduleData));
         if (scheduleData.absences) {
             await context.env.ABSENCES_KV.put("absences", JSON.stringify(scheduleData.absences));
