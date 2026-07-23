@@ -1079,9 +1079,48 @@ function renderPiketEditor() {
     const shift = AppState.editorPiketShift;
     const day = AppState.editorDay;
     const piketData = AppState.data.piket[shift];
-    const guruVal = (piketData.guru[day] || []).join('\n');
-    const wksVal = (piketData.wakasek[day] || []).join('\n');
-    const bkVal = (piketData.bk[day] || []).join('\n');
+    
+    // Teachers datalist dropdown options
+    const teachersEntries = Object.entries(AppState.data.teachers).sort((a, b) => a[1].name.localeCompare(b[1].name));
+    const datalistOptions = teachersEntries.map(([code, info]) => `<option value="${info.name}">${code} - ${info.name} (${info.subject})</option>`).join('');
+
+    const renderCategoryCard = (catKey, catTitle, catList) => {
+        return `
+            <div class="editor-piket-card" id="piket-card-${catKey}">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h5 style="margin:0; font-size:14px; font-weight:700;">${catTitle}</h5>
+                    <span style="font-size:11px; background:var(--primary-color); color:var(--header-text); padding:2px 8px; border-radius:10px; font-weight:700;">${catList.length} Petugas</span>
+                </div>
+                
+                <div class="piket-assigned-list" style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;">
+                    ${catList.length === 0 ? '<div style="font-size:12px; color:var(--text-muted); font-style:italic;">Belum ada petugas piket.</div>' : ''}
+                    ${catList.map((teacherName, idx) => {
+                        const codeEntry = Object.entries(AppState.data.teachers).find(([_, info]) => info.name === teacherName);
+                        const codeTag = codeEntry ? `<span class="teacher-code" style="margin-right:6px; background:var(--control-bg); border:1px solid var(--border-color); padding:1px 5px; font-size:10px; border-radius:3px;">${codeEntry[0]}</span>` : '';
+                        return `
+                            <div class="piket-assigned-item" style="display:flex; justify-content:space-between; align-items:center; background:var(--control-bg); border:1px solid var(--border-color); padding:6px 10px; border-radius:4px; font-size:13px;">
+                                <div style="display:flex; align-items:center;">
+                                    ${codeTag}
+                                    <span style="font-weight:600;">${teacherName}</span>
+                                </div>
+                                <button class="btn-remove-piket-teacher" data-cat="${catKey}" data-idx="${idx}" title="Hapus dari piket" style="background:#ef4444; color:#fff; border:none; border-radius:3px; padding:3px 8px; font-size:11px; font-weight:700; cursor:pointer;">&times; Hapus</button>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+
+                <div class="piket-add-form" style="display:flex; gap:6px;">
+                    <input type="text" 
+                           id="piket-add-input-${catKey}" 
+                           list="piket-teachers-datalist" 
+                           placeholder="Ketik/Pilih nama guru..." 
+                           style="flex:1; padding:6px 10px; font-size:12px; border:1px solid var(--border-color); border-radius:4px; background:var(--container-bg); color:var(--text-color);">
+                    <button class="btn-add-piket-teacher" data-cat="${catKey}" style="padding:6px 12px; font-size:12px; font-weight:700; background:var(--primary-color); color:var(--header-text); border:none; border-radius:4px; cursor:pointer;">+ Tambah</button>
+                </div>
+            </div>
+        `;
+    };
+
     let html = `
         <div class="editor-schedule-header">
             <div class="editor-field" style="max-width:120px;">
@@ -1098,25 +1137,20 @@ function renderPiketEditor() {
                 </select>
             </div>
         </div>
+
+        <datalist id="piket-teachers-datalist">
+            ${datalistOptions}
+        </datalist>
+
         <div class="editor-piket-grid">
-            <div class="editor-piket-card">
-                <h5>Petugas Piket Guru</h5>
-                <p style="font-size:11px; color:var(--text-muted); margin:0 0 5px 0;">Tuliskan satu nama per baris:</p>
-                <textarea id="piket-input-guru">${guruVal}</textarea>
-            </div>
-            <div class="editor-piket-card">
-                <h5>Wakasek & Staff Piket</h5>
-                <p style="font-size:11px; color:var(--text-muted); margin:0 0 5px 0;">Tuliskan satu nama per baris:</p>
-                <textarea id="piket-input-wakasek">${wksVal}</textarea>
-            </div>
-            <div class="editor-piket-card">
-                <h5>Piket Guru BK</h5>
-                <p style="font-size:11px; color:var(--text-muted); margin:0 0 5px 0;">Tuliskan satu nama per baris:</p>
-                <textarea id="piket-input-bk">${bkVal}</textarea>
-            </div>
+            ${renderCategoryCard('guru', 'Petugas Piket Guru', piketData.guru[day] || [])}
+            ${renderCategoryCard('wakasek', 'Wakasek & Staff Piket', piketData.wakasek[day] || [])}
+            ${renderCategoryCard('bk', 'Piket Guru BK', piketData.bk[day] || [])}
         </div>
     `;
+
     contentBox.innerHTML = html;
+
     document.getElementById('piket-edit-shift').addEventListener('change', (e) => {
         AppState.editorPiketShift = e.target.value;
         renderPiketEditor();
@@ -1125,17 +1159,39 @@ function renderPiketEditor() {
         AppState.editorDay = e.target.value;
         renderPiketEditor();
     });
-    const savePiketLocal = () => {
-        const guruText = document.getElementById('piket-input-guru').value;
-        const wksText = document.getElementById('piket-input-wakasek').value;
-        const bkText = document.getElementById('piket-input-bk').value;
-        piketData.guru[day] = guruText.split('\n').map(s => s.trim()).filter(s => s !== '');
-        piketData.wakasek[day] = wksText.split('\n').map(s => s.trim()).filter(s => s !== '');
-        piketData.bk[day] = bkText.split('\n').map(s => s.trim()).filter(s => s !== '');
-    };
-    document.getElementById('piket-input-guru').addEventListener('input', savePiketLocal);
-    document.getElementById('piket-input-wakasek').addEventListener('input', savePiketLocal);
-    document.getElementById('piket-input-bk').addEventListener('input', savePiketLocal);
+
+    document.querySelectorAll('.btn-remove-piket-teacher').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const cat = e.target.getAttribute('data-cat');
+            const idx = parseInt(e.target.getAttribute('data-idx'));
+            if (piketData[cat] && piketData[cat][day]) {
+                piketData[cat][day].splice(idx, 1);
+                renderPiketEditor();
+            }
+        });
+    });
+
+    document.querySelectorAll('.btn-add-piket-teacher').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const cat = e.target.getAttribute('data-cat');
+            const inputEl = document.getElementById(`piket-add-input-${cat}`);
+            const name = inputEl.value.trim();
+            if (!name) {
+                alert("Harap pilih atau ketik nama guru!");
+                return;
+            }
+            if (!piketData[cat]) piketData[cat] = {};
+            if (!piketData[cat][day]) piketData[cat][day] = [];
+            
+            if (piketData[cat][day].includes(name)) {
+                alert(`${name} sudah terdaftar di piket ${day}!`);
+                return;
+            }
+            
+            piketData[cat][day].push(name);
+            renderPiketEditor();
+        });
+    });
 }
 
 // --- EVENT LISTENERS ---
